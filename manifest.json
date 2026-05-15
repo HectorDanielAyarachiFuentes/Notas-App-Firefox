@@ -4,7 +4,9 @@
   "version": "1.0",
   "description": "Extensión moderna para gestionar notas con sincronización en la nube y OCR.",
   "background": {
-    "scripts": ["js/background.js"],
+    "scripts": [
+      "js/background.js"
+    ],
     "type": "module"
   },
   "content_security_policy": {
@@ -21,8 +23,8 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "notas-pro@extension",
-      "strict_min_version": "112.0",
-      "data_collection_permissions": false
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {}
     }
   },
   "permissions": [
@@ -38,8 +40,12 @@
   ],
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["js/clipboard-monitor.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "js/clipboard-monitor.js"
+      ],
       "all_frames": true
     }
   ],
@@ -76,8 +82,9 @@
         "OCR/tessdata_best/*",
         "OCR/images/*"
       ],
-      "matches": ["<all_urls>"]
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }
-

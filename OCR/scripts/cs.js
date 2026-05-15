@@ -1,5 +1,5 @@
 if (typeof browser === "undefined") {
-    var browser = chrome;
+	var browser = chrome;
 }
 /* globals jQuery, unescape */
 
@@ -47,12 +47,12 @@ if (typeof browser === "undefined") {
 	 *  Set to true to use a JPEG image. Default is PNG
 	 *  JPEG_QUALITY ranges from 0.1 to 1 and is valid only if USE_JPEG is true
 	 */
-	 var USE_JPEG = true;
-	 var JPEG_QUALITY = 0.7;
-	 /*Utility functions*/
-	 var logError = function (msg, err) {
-	 	err = err || '';
-	 	msg = msg || 'An error occurred.';
+	var USE_JPEG = true;
+	var JPEG_QUALITY = 0.7;
+	/*Utility functions*/
+	var logError = function (msg, err) {
+		err = err || '';
+		msg = msg || 'An error occurred.';
 		//console.error('Extension ' + appShortName + ': ' + msg, err);
 	};
 
@@ -67,7 +67,7 @@ if (typeof browser === "undefined") {
 					return false;
 				}
 			});
-		}else if (OPTIONS.ocrEngine === "OcrSpace") {
+		} else if (OPTIONS.ocrEngine === "OcrSpace") {
 			$.each(APPCONFIG.ocr_languages, function (i, v) {
 				if (v.lang === lang) {
 					result = v;
@@ -90,10 +90,10 @@ if (typeof browser === "undefined") {
 		if (type === 'OCR') {
 			res = (_searchOCRLanguageList(lang) || {}).name;
 		} else {
-			
+
 			$.each(APPCONFIG.ocr_languages, function (k, v) {
 				if (lang in v || origLang in v) {
-					res = v[ lang ] || v[ origLang ];
+					res = v[lang] || v[origLang];
 					return false;
 				}
 			});
@@ -112,10 +112,10 @@ if (typeof browser === "undefined") {
 	var _setLanguageOnUI = function () {
 		var ocrLang = (OPTIONS.ocrEngine === "OcrSpaceSecond" || OPTIONS.ocrEngine === "OcrSpaceThird") ? "Auto-Detect" : _getLanguage('OCR', OPTIONS.visualCopyOCRLang);
 		$('.ocrext-label.ocrext-message span')
-		.text('(' + ocrLang + ')')
-		.attr({
-			title: ocrLang
-		});
+			.text('(' + ocrLang + ')')
+			.attr({
+				title: ocrLang
+			});
 		//autodetect for second and third engine
 		if (OPTIONS.ocrEngine === "OcrSpaceSecond" || OPTIONS.ocrEngine === "OcrSpaceThird") {
 			$('.ocrext-result').attr('dir', 'ltr');
@@ -125,91 +125,91 @@ if (typeof browser === "undefined") {
 		$('.ocrext-result').attr('dir', ocrLangDir);
 	};
 	var _getLanguageDirection = function (lang) {
-		if(!lang){
+		if (!lang) {
 			return 'ltr';
 		}
-		var rtlLanguages = [ 'arabic', 'arabian' ];
+		var rtlLanguages = ['arabic', 'arabian'];
 		return rtlLanguages.indexOf(lang.toLowerCase()) === -1 ? "ltr" : "rtl";
 	};
 	var _setOCRFontSize = function () {
 		$('.ocrext-ocr-message')
-		.removeClass(function (i, className) {
-			var classes = className.match(/ocrext-font-\d\dpx/ig);
-			return classes && classes.length ? classes.join(' ') : '';
-		})
-		.addClass('ocrext-font-' + OPTIONS.visualCopyOCRFontSize);
+			.removeClass(function (i, className) {
+				var classes = className.match(/ocrext-font-\d\dpx/ig);
+				return classes && classes.length ? classes.join(' ') : '';
+			})
+			.addClass('ocrext-font-' + OPTIONS.visualCopyOCRFontSize);
 	};
 	var _setZIndex = function () {
 		/*
 		 * Google Translate - 1201 Perapera - 7777 GDict - 99997 Transover - 2147483647
 		 */
-		 if (OPTIONS.visualCopySupportDicts) {
-		 	$('.ocrext-wrapper').css('zIndex', 1200);
-		 	let $textarea = $('textarea.ocrext-result');
-		 	if ($('#popup_support_text').length === 0) {
-		 		$textarea.after(`<p id="popup_support_text" class="${$textarea.prop('classList')}">${$textarea.val()}</p>`);
-		 		$textarea.hide();
-		 	}
-		 } else {
-		 	$('.ocrext-wrapper').css('zIndex', MAX_ZINDEX);
-		 }
-		};
-		var _isImageParseError = function (data) {
-			return data && data.ParsedResults && data.ParsedResults.length && data.ParsedResults[ 0 ].FileParseExitCode === -10;
-		};
-		var ENGINES = [
-			{ value: 'OcrSpace',       label: 'Motor OCR 1' },
-			{ value: 'OcrSpaceSecond', label: 'Motor OCR 2' },
-			{ value: 'OcrSpaceThird',  label: 'Motor OCR 3' },
-			{ value: 'OcrLocal',       label: 'OCR Local (Fast)' },
-			{ value: 'OcrLocalBest',   label: 'OCR Local (Best)' }
-		];
+		if (OPTIONS.visualCopySupportDicts) {
+			$('.ocrext-wrapper').css('zIndex', 1200);
+			let $textarea = $('textarea.ocrext-result');
+			if ($('#popup_support_text').length === 0) {
+				$textarea.after(`<p id="popup_support_text" class="${$textarea.prop('classList')}">${$textarea.val()}</p>`);
+				$textarea.hide();
+			}
+		} else {
+			$('.ocrext-wrapper').css('zIndex', MAX_ZINDEX);
+		}
+	};
+	var _isImageParseError = function (data) {
+		return data && data.ParsedResults && data.ParsedResults.length && data.ParsedResults[0].FileParseExitCode === -10;
+	};
+	var ENGINES = [
+		{ value: 'OcrSpace', label: 'Motor OCR 1' },
+		{ value: 'OcrSpaceSecond', label: 'Motor OCR 2' },
+		{ value: 'OcrSpaceThird', label: 'Motor OCR 3' },
+		{ value: 'OcrLocal', label: 'OCR Local (Fast)' },
+		{ value: 'OcrLocalBest', label: 'OCR Local (Best)' }
+	];
 
-		var _getEngineLabel = function(value) {
-			var found = ENGINES.filter(function(e) { return e.value === value; });
-			return found.length ? found[0].label : value;
-		};
+	var _getEngineLabel = function (value) {
+		var found = ENGINES.filter(function (e) { return e.value === value; });
+		return found.length ? found[0].label : value;
+	};
 
-		var _drawEngineSelector = function () {
-			var localOcrInstalled = OPTIONS.localOcrInstalled;
-			var $btnContainer = $('.ocrext-quickselect-btn-container');
-			$btnContainer.empty();
-			var currentLabel = _getEngineLabel(OPTIONS.ocrEngine);
+	var _drawEngineSelector = function () {
+		var localOcrInstalled = OPTIONS.localOcrInstalled;
+		var $btnContainer = $('.ocrext-quickselect-btn-container');
+		$btnContainer.empty();
+		var currentLabel = _getEngineLabel(OPTIONS.ocrEngine);
 
-			var $wrapper = $('<div class="ocrext-element ocrext-engine-dropdown"></div>');
+		var $wrapper = $('<div class="ocrext-element ocrext-engine-dropdown"></div>');
 
-			var $btn = $('<button class="ocrext-element ocrext-engine-btn">' +
-				'<span class="ocrext-engine-btn-label">' + currentLabel + '</span>' +
-				'<svg class="ocrext-engine-btn-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
-				'</button>');
+		var $btn = $('<button class="ocrext-element ocrext-engine-btn">' +
+			'<span class="ocrext-engine-btn-label">' + currentLabel + '</span>' +
+			'<svg class="ocrext-engine-btn-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+			'</button>');
 
-			var $panel = $('<div class="ocrext-engine-panel"></div>');
-			$.each(ENGINES, function(i, e) {
-				// if (e.value === 'OcrLocal' && !localOcrInstalled) return;
-				var $item = $('<div class="ocrext-engine-item' +
-					(OPTIONS.ocrEngine === e.value ? ' selected' : '') +
-					'" data-engine="' + e.value + '">' +
-					e.label +
-					'</div>');
-				$panel.append($item);
-			});
+		var $panel = $('<div class="ocrext-engine-panel"></div>');
+		$.each(ENGINES, function (i, e) {
+			// if (e.value === 'OcrLocal' && !localOcrInstalled) return;
+			var $item = $('<div class="ocrext-engine-item' +
+				(OPTIONS.ocrEngine === e.value ? ' selected' : '') +
+				'" data-engine="' + e.value + '">' +
+				e.label +
+				'</div>');
+			$panel.append($item);
+		});
 
-			$wrapper.append($btn).append($panel);
-			$btnContainer.append($wrapper);
-			// componentHandler.upgradeElement($btn.get(0)); // Removed MDL dependency
-		};
+		$wrapper.append($btn).append($panel);
+		$btnContainer.append($wrapper);
+		// componentHandler.upgradeElement($btn.get(0)); // Removed MDL dependency
+	};
 
 	// Background mask
 	var htmlDialogMessage = (function () {
 		let $body;
 		var maskString = [
-		'<div class="ocrext-element ocrext-mask">',
-		'<p class="ocrext-element">Por favor, selecciona el texto a capturar.</p>',
-		'<div class="ocrext-overlay-corner ocrext-corner-tl"></div>',
-		'<div class="ocrext-overlay-corner ocrext-corner-tr"></div>',
-		'<div class="ocrext-overlay-corner ocrext-corner-br"></div>',
-		'<div class="ocrext-overlay-corner ocrext-corner-bl"></div>',
-		'</div>'
+			'<div class="ocrext-element ocrext-mask">',
+			'<p class="ocrext-element">Por favor, selecciona el texto a capturar.</p>',
+			'<div class="ocrext-overlay-corner ocrext-corner-tl"></div>',
+			'<div class="ocrext-overlay-corner ocrext-corner-tr"></div>',
+			'<div class="ocrext-overlay-corner ocrext-corner-br"></div>',
+			'<div class="ocrext-overlay-corner ocrext-corner-bl"></div>',
+			'</div>'
 		].join('');
 
 		var tl;
@@ -221,14 +221,14 @@ if (typeof browser === "undefined") {
 				$body = $('body');
 				if (!$MASK && !$body.find('.ocrext-mask').length) {
 					$MASK = $(maskString)
-					.css({
-						left: 0,
-						top: 0,
-						width: '100%',
-						height: '100%',
-						zIndex: MAX_ZINDEX - 2,
-						display: 'none'
-					});
+						.css({
+							left: 0,
+							top: 0,
+							width: '100%',
+							height: '100%',
+							zIndex: MAX_ZINDEX - 2,
+							display: 'none'
+						});
 					$MASK.appendTo($body);
 					tl = $MASK.find('.ocrext-corner-tl');
 					tr = $MASK.find('.ocrext-corner-tr');
@@ -245,7 +245,7 @@ if (typeof browser === "undefined") {
 				}
 				$MASK.width($(document).width());
 				$MASK.height($(document).height());
-				if ([ 'absolute', 'relative', 'fixed' ].indexOf($('body').css('position')) >= 0) {
+				if (['absolute', 'relative', 'fixed'].indexOf($('body').css('position')) >= 0) {
 					$MASK.css('position', 'fixed');
 				}
 				return this;
@@ -310,26 +310,26 @@ if (typeof browser === "undefined") {
 				tl.css({
 					left: 0,
 					top: 0,
-					width: pos.tr[ 0 ],
-					height: pos.tl[ 1 ]
+					width: pos.tr[0],
+					height: pos.tl[1]
 				});
 				tr.css({
-					left: pos.tr[ 0 ],
+					left: pos.tr[0],
 					top: 0,
-					width: (width - pos.tr[ 0 ]),
-					height: pos.br[ 1 ]
+					width: (width - pos.tr[0]),
+					height: pos.br[1]
 				});
 				br.css({
-					left: pos.bl[ 0 ],
-					top: pos.bl[ 1 ],
-					width: (width - pos.bl[ 0 ]),
-					height: (height - pos.bl[ 1 ])
+					left: pos.bl[0],
+					top: pos.bl[1],
+					width: (width - pos.bl[0]),
+					height: (height - pos.bl[1])
 				});
 				bl.css({
 					left: 0,
-					top: pos.tl[ 1 ],
-					width: pos.tl[ 0 ],
-					height: (height - pos.tl[ 1 ])
+					top: pos.tl[1],
+					width: pos.tl[0],
+					height: (height - pos.tl[1])
 				});
 			}
 		};
@@ -340,13 +340,13 @@ if (typeof browser === "undefined") {
 		var $body;
 		var $MASK;
 		var maskString = [
-		'<div class="ocrext-element ocrext-mask">',
-		'<p class="ocrext-element">Por favor, selecciona el texto a capturar.</p>',
-		'<div class="ocrext-overlay-corner ocrext-corner-tl"></div>',
-		'<div class="ocrext-overlay-corner ocrext-corner-tr"></div>',
-		'<div class="ocrext-overlay-corner ocrext-corner-br"></div>',
-		'<div class="ocrext-overlay-corner ocrext-corner-bl"></div>',
-		'</div>'
+			'<div class="ocrext-element ocrext-mask">',
+			'<p class="ocrext-element">Por favor, selecciona el texto a capturar.</p>',
+			'<div class="ocrext-overlay-corner ocrext-corner-tl"></div>',
+			'<div class="ocrext-overlay-corner ocrext-corner-tr"></div>',
+			'<div class="ocrext-overlay-corner ocrext-corner-br"></div>',
+			'<div class="ocrext-overlay-corner ocrext-corner-bl"></div>',
+			'</div>'
 		].join('');
 
 		var tl;
@@ -358,14 +358,14 @@ if (typeof browser === "undefined") {
 				$body = $('body');
 				if (!$MASK && !$body.find('.ocrext-mask').length) {
 					$MASK = $(maskString)
-					.css({
-						left: 0,
-						top: 0,
-						width: '100%',
-						height: '100%',
-						zIndex: MAX_ZINDEX - 2,
-						display: 'none'
-					});
+						.css({
+							left: 0,
+							top: 0,
+							width: '100%',
+							height: '100%',
+							zIndex: MAX_ZINDEX - 2,
+							display: 'none'
+						});
 					$MASK.appendTo($body);
 					tl = $MASK.find('.ocrext-corner-tl');
 					tr = $MASK.find('.ocrext-corner-tr');
@@ -384,7 +384,7 @@ if (typeof browser === "undefined") {
 				}
 				$MASK.width($(document).width());
 				$MASK.height($(document).height());
-				if ([ 'absolute', 'relative', 'fixed' ].indexOf($('body').css('position')) >= 0) {
+				if (['absolute', 'relative', 'fixed'].indexOf($('body').css('position')) >= 0) {
 					$MASK.css('position', 'fixed');
 				}
 				return this;
@@ -412,7 +412,7 @@ if (typeof browser === "undefined") {
 				return this;
 			},
 			remove: function () {
-				if($MASK){
+				if ($MASK) {
 					$MASK.remove();
 				}
 				$MASK = null;
@@ -451,26 +451,26 @@ if (typeof browser === "undefined") {
 				tl.css({
 					left: 0,
 					top: 0,
-					width: pos.tr[ 0 ],
-					height: pos.tl[ 1 ]
+					width: pos.tr[0],
+					height: pos.tl[1]
 				});
 				tr.css({
-					left: pos.tr[ 0 ],
+					left: pos.tr[0],
 					top: 0,
-					width: (width - pos.tr[ 0 ]),
-					height: pos.br[ 1 ]
+					width: (width - pos.tr[0]),
+					height: pos.br[1]
 				});
 				br.css({
-					left: pos.bl[ 0 ],
-					top: pos.bl[ 1 ],
-					width: (width - pos.bl[ 0 ]),
-					height: (height - pos.bl[ 1 ])
+					left: pos.bl[0],
+					top: pos.bl[1],
+					width: (width - pos.bl[0]),
+					height: (height - pos.bl[1])
 				});
 				bl.css({
 					left: 0,
-					top: pos.tl[ 1 ],
-					width: pos.tl[ 0 ],
-					height: (height - pos.tl[ 1 ])
+					top: pos.tl[1],
+					width: pos.tl[0],
+					height: (height - pos.tl[1])
 				});
 			}
 		};
@@ -478,11 +478,11 @@ if (typeof browser === "undefined") {
 	/*
 	 * Mutates global state by setting the OPTIONS value
 	 */
-	 function getOptions() {
-	 	try {
-	 		var $optsDfd = $.Deferred();
-	 		var theseOptions = {
-	 			visualCopyOCRLang: 'spa',
+	function getOptions() {
+		try {
+			var $optsDfd = $.Deferred();
+			var theseOptions = {
+				visualCopyOCRLang: 'spa',
 				visualCopyOCRFontSize: '16px',
 				copyAfterProcess: true,
 				copyType: 'Text',
@@ -513,27 +513,27 @@ if (typeof browser === "undefined") {
 	/*
 	 * Mutates global state by setting the OPTIONS value
 	 */
-	 function setOptions(opts) {
-	 	var $optsDfd = $.Deferred();
-	 	browser.storage.sync.set(opts, function () {
-	 		$.extend(OPTIONS, opts);
+	function setOptions(opts) {
+		var $optsDfd = $.Deferred();
+		browser.storage.sync.set(opts, function () {
+			$.extend(OPTIONS, opts);
 			// set the global options here
 			$optsDfd.resolve();
 		});
-	 	return $optsDfd;
-	 }
+		return $optsDfd;
+	}
 
 	/*
 	 * Loads the config, HTML and options before activating the widget
 	 */
-	 function _bootStrapResources() {
-	 	var $dfd = $.Deferred();
-	 	browser.runtime.sendMessage({
-	 		evt: '_bootStrapResources'
-	 	}, function (response) {
-	 		getOptions().done(function() {
-				let config= response.config;
-				let htmlStr= response.htmlStr;
+	function _bootStrapResources() {
+		var $dfd = $.Deferred();
+		browser.runtime.sendMessage({
+			evt: '_bootStrapResources'
+		}, function (response) {
+			getOptions().done(function () {
+				let config = response.config;
+				let htmlStr = response.htmlStr;
 
 				if (OPTIONS.status !== "PRO+") {
 					$('.translate-text-tab').addClass('disabled');
@@ -544,34 +544,34 @@ if (typeof browser === "undefined") {
 				OCRTranslator.APPCONFIG = APPCONFIG = typeof config === 'string' ? JSON.parse(config) : config;
 				$dfd.resolve(APPCONFIG, HTMLSTRCOPY);
 			});
-	 	});
-	 	return $dfd;
-	 }
+		});
+		return $dfd;
+	}
 
 	/*
 	 * Loads the config, HTML and options before activating the widget
 	 */
-	 function _bootStrapMessageDialog() {
-	 	let $dfd = $.Deferred();
-	 	if ($('#cfish-popup-message-dialog').length) {
-	 		$dfd.resolve();
-	 		return $dfd;
-	 	}
-	 	browser.runtime.sendMessage({
-	 		evt: '_bootStrapMessageDialog'
-	 	}, function (response) {
-	 		getOptions();
-	 		let htmlStr= response.htmlStr;
-	 		messageDialogHtml = htmlStr;
-	 		const parser = new DOMParser();
-	 		const doc = parser.parseFromString(messageDialogHtml, 'text/html');
-	 		while (doc.body.firstChild) {
-	 			document.body.appendChild(doc.body.firstChild);
-	 		}
-	 		$dfd.resolve();
-	 	});
-	 	return $dfd;
-	 }
+	function _bootStrapMessageDialog() {
+		let $dfd = $.Deferred();
+		if ($('#cfish-popup-message-dialog').length) {
+			$dfd.resolve();
+			return $dfd;
+		}
+		browser.runtime.sendMessage({
+			evt: '_bootStrapMessageDialog'
+		}, function (response) {
+			getOptions();
+			let htmlStr = response.htmlStr;
+			messageDialogHtml = htmlStr;
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(messageDialogHtml, 'text/html');
+			while (doc.body.firstChild) {
+				document.body.appendChild(doc.body.firstChild);
+			}
+			$dfd.resolve();
+		});
+		return $dfd;
+	}
 
 	/*
 	 * Converts dataURI to a blob instance
@@ -615,22 +615,22 @@ if (typeof browser === "undefined") {
 		// }
 		// convert base64/URLEncoded data component to raw binary data held in a string
 		var byteString;
-		if (dataURI.split(',')[ 0 ].indexOf('base64') >= 0) {
-			byteString = atob(dataURI.split(',')[ 1 ]);
+		if (dataURI.split(',')[0].indexOf('base64') >= 0) {
+			byteString = atob(dataURI.split(',')[1]);
 		} else {
-			byteString = unescape(dataURI.split(',')[ 1 ]);
+			byteString = unescape(dataURI.split(',')[1]);
 		}
 		// separate out the mime component
-		var mimeString = dataURI.split(',')[ 0 ].split(':')[ 1 ].split(';')[ 0 ];
+		var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
 		// write the bytes of the string to a typed array
 		var ia = new Uint8Array(byteString.length);
 		for (var i = 0; i < byteString.length; i++) {
-			ia[ i ] = byteString.charCodeAt(i);
+			ia[i] = byteString.charCodeAt(i);
 		}
 		return new Promise((resolve, reject) => {
 			resolve(
-				new Blob([ ia ], { type: mimeString })
-				)
+				new Blob([ia], { type: mimeString })
+			)
 		});
 	}
 
@@ -639,12 +639,12 @@ if (typeof browser === "undefined") {
 	 * is asynchronous, returns a promise
 	 */
 
-	 function _captureImageOntoCanvas(image_parse_mode = false, imageUrl) {
-	 	var $canOrig = $('#ocrext-canOrig'),
-	 	$can = $('#ocrext-can'),
-	 	$dialog = $('body').find('.ocrext-wrapper');
-	 	var $captureComplete = $.Deferred();
-	 	IS_CAPTURED = true;
+	function _captureImageOntoCanvas(image_parse_mode = false, imageUrl) {
+		var $canOrig = $('#ocrext-canOrig'),
+			$can = $('#ocrext-can'),
+			$dialog = $('body').find('.ocrext-wrapper');
+		var $captureComplete = $.Deferred();
+		IS_CAPTURED = true;
 		// capture the current tab using the background page. On success it returns
 		// dataURL and zoom of the captured image
 		getOptions().done(function () {
@@ -678,7 +678,7 @@ if (typeof browser === "undefined") {
 		img.crossOrigin = "anonymous";
 		img.src = image_parse_mode ? imageUrl : response.dataURL;
 		$imageLoadDfd
-		.done(function () {
+			.done(function () {
 				// the screencapture is messed up when pixel density changes; compare the window width
 				// and image width to determine if it needs to be fixed
 				// also, this fix problem with page zoom
@@ -686,12 +686,12 @@ if (typeof browser === "undefined") {
 				var scaleValue = 1 / devicePxRatio;
 				var dpf = window.innerWidth / img.width;
 				var scaleFactor = 1 / dpf,
-				sx = image_parse_mode ? img.width : Math.min(startCx, endCx) * scaleFactor,
-				sy = image_parse_mode ? img.height : Math.min(startCy, endCy) * scaleFactor,
-				width = image_parse_mode ? img.width : Math.abs(endCx - startCx),
-				height = image_parse_mode ? img.height : Math.abs(endCy - startCy),
-				scaledWidth = image_parse_mode ? width : width * scaleFactor,
-				scaledHeight = image_parse_mode ? height : height * scaleFactor;
+					sx = image_parse_mode ? img.width : Math.min(startCx, endCx) * scaleFactor,
+					sy = image_parse_mode ? img.height : Math.min(startCy, endCy) * scaleFactor,
+					width = image_parse_mode ? img.width : Math.abs(endCx - startCx),
+					height = image_parse_mode ? img.height : Math.abs(endCy - startCy),
+					scaledWidth = image_parse_mode ? width : width * scaleFactor,
+					scaledHeight = image_parse_mode ? height : height * scaleFactor;
 				$canOrig.attr({
 					width: scaledWidth,
 					height: scaledHeight
@@ -754,23 +754,23 @@ if (typeof browser === "undefined") {
 	/*
 	 * Returns the ID of the most responsive server
 	 */
-	 function _getOCRServer() {
-	 	var $dfd = $.Deferred();
-	 	if (isFirefox) {
-	 		browser.runtime.sendMessage({
-	 			evt: 'get-best-server'
-	 		}).then(function (response) {
-	 			$dfd.resolve(response.server.id);
-	 		});
-	 	} else {
-	 		browser.runtime.sendMessage({
-	 			evt: 'get-best-server'
-	 		}, function (response) {
-	 			$dfd.resolve(response.server.id);
-	 		});
-	 	}
-	 	return $dfd;
-	 }
+	function _getOCRServer() {
+		var $dfd = $.Deferred();
+		if (isFirefox) {
+			browser.runtime.sendMessage({
+				evt: 'get-best-server'
+			}).then(function (response) {
+				$dfd.resolve(response.server.id);
+			});
+		} else {
+			browser.runtime.sendMessage({
+				evt: 'get-best-server'
+			}, function (response) {
+				$dfd.resolve(response.server.id);
+			});
+		}
+		return $dfd;
+	}
 
 	/*
 	 * Handles the AJAX POST calls to OCR API.
@@ -780,22 +780,22 @@ if (typeof browser === "undefined") {
 		if (_ocrCancelled) { $ocrPromise.reject({ type: 'cancelled', stat: 'Cancelled' }); return; }
 		var formData = new FormData();
 		OPTIONS && OPTIONS.useTableOcr && !third_engine && (formData.append('isTable', true));
-		
+
 		// Engine 1: send explicit language code; Engine 2+3: send 'auto' (API auto-detects)
 		if (!second_engine && !third_engine && postData.language) {
 			formData.append('language', postData.language);
 		} else if (second_engine || third_engine) {
 			formData.append('language', 'auto');
 		}
-		
+
 		formData.append('file', postData.blob, postData.fileName);
 		formData.append('OCREngine', third_engine ? "3" : (second_engine ? "2" : "1"));
-		
+
 		// Engine 3 returns no overlay data — do not request it
 		if (OPTIONS.visualCopyTextOverlay && !third_engine) {
 			formData.append('isOverlayRequired', true);
 		}
-		
+
 
 		_getOCRServer().done(function (serverId) {
 			if (_ocrCancelled) { $ocrPromise.reject({ type: 'cancelled', stat: 'Cancelled' }); return; }
@@ -804,7 +804,7 @@ if (typeof browser === "undefined") {
 			var maxAttempts = serverList.length;
 			var ocrAPIInfo = $.grep(serverList, function (el) {
 				return el.id === serverId;
-			})[ 0 ];
+			})[0];
 			formData.append('apikey', ocrAPIInfo.ocr_api_key);
 			attempt += 1;
 			startTime = Date.now();
@@ -828,110 +828,110 @@ if (typeof browser === "undefined") {
 						data.OCRExitCode !== 1) && !_isImageParseError(data) &&
 						attempt < maxAttempts) {
 						// sometimes an error string is returned
-					if (isFirefox) {
-						browser.runtime.sendMessage({
-							evt: 'set-server-responsetime',
-							serverId: ocrAPIInfo.id,
-							serverResponseTime: -1
-						}).then(function () {
-							OCRTranslator.setStatus('progress',
-								'Retrying on server ' + (attempt + 1) + ' of ' + maxAttempts + '\u2026', true);
-							formData = null;
-							_postToOCR($ocrPromise, postData, attempt, second_engine, third_engine);
+						if (isFirefox) {
+							browser.runtime.sendMessage({
+								evt: 'set-server-responsetime',
+								serverId: ocrAPIInfo.id,
+								serverResponseTime: -1
+							}).then(function () {
+								OCRTranslator.setStatus('progress',
+									'Retrying on server ' + (attempt + 1) + ' of ' + maxAttempts + '\u2026', true);
+								formData = null;
+								_postToOCR($ocrPromise, postData, attempt, second_engine, third_engine);
+							});
+						} else {
+							browser.runtime.sendMessage({
+								evt: 'set-server-responsetime',
+								serverId: ocrAPIInfo.id,
+								serverResponseTime: -1
+							}, function () {
+								OCRTranslator.setStatus('progress',
+									'Retrying on server ' + (attempt + 1) + ' of ' + maxAttempts + '\u2026', true);
+								formData = null;
+								_postToOCR($ocrPromise, postData, attempt, second_engine, third_engine);
+							});
+						}
+						return false;
+					}
+					if (typeof data === 'string') {
+						$ocrPromise.reject({
+							type: 'OCR',
+							stat: 'OCR conversion failed',
+							message: data,
+							details: data,
+							code: data
 						});
-					} else {
+					} else if (data.IsErroredOnProcessing) {
+						$ocrPromise.reject({
+							type: 'OCR',
+							stat: 'OCR conversion failed',
+							message: data.ErrorMessage,
+							details: data.ErrorDetails,
+							code: data.OCRExitCode
+						});
+					} else if (data.OCRExitCode === 1) {
 						browser.runtime.sendMessage({
 							evt: 'set-server-responsetime',
 							serverId: ocrAPIInfo.id,
-							serverResponseTime: -1
-						}, function () {
-							OCRTranslator.setStatus('progress',
-								'Retrying on server ' + (attempt + 1) + ' of ' + maxAttempts + '\u2026', true);
-							formData = null;
-							_postToOCR($ocrPromise, postData, attempt, second_engine, third_engine);
+							serverResponseTime: (Date.now() - startTime) / 1000
+						});
+						var parsed = data.ParsedResults && data.ParsedResults[0];
+						$ocrPromise.resolve(parsed ? parsed.ParsedText : '', parsed ? parsed.TextOverlay : null);
+					} else {
+						result = data.ParsedResults && data.ParsedResults[0];
+						$ocrPromise.reject({
+							type: 'OCR',
+							stat: 'OCR conversion failed',
+							message: result ? result.ErrorMessage : '',
+							details: result ? result.ErrorDetails : '',
+							code: result ? result.FileParseExitCode : data.OCRExitCode
 						});
 					}
-					return false;
-				}
-				if (typeof data === 'string') {
-					$ocrPromise.reject({
-						type: 'OCR',
-						stat: 'OCR conversion failed',
-						message: data,
-						details: data,
-						code: data
-					});
-				} else if (data.IsErroredOnProcessing) {
-					$ocrPromise.reject({
-						type: 'OCR',
-						stat: 'OCR conversion failed',
-						message: data.ErrorMessage,
-						details: data.ErrorDetails,
-						code: data.OCRExitCode
-					});
-				} else if (data.OCRExitCode === 1) {
-					browser.runtime.sendMessage({
-						evt: 'set-server-responsetime',
-						serverId: ocrAPIInfo.id,
-						serverResponseTime: (Date.now() - startTime) / 1000
-					});
-					var parsed = data.ParsedResults && data.ParsedResults[0];
-					$ocrPromise.resolve(parsed ? parsed.ParsedText : '', parsed ? parsed.TextOverlay : null);
-				} else {
-					result = data.ParsedResults && data.ParsedResults[0];
-					$ocrPromise.reject({
-						type: 'OCR',
-						stat: 'OCR conversion failed',
-						message: result ? result.ErrorMessage : '',
-						details: result ? result.ErrorDetails : '',
-						code: result ? result.FileParseExitCode : data.OCRExitCode
-					});
-				}
-			},
-			error: function (x, t) {
-				console.error('OCR API Error Trace:', { status: x.status, text: x.responseText, type: t });
-				var errData;
-				var stat;
-				if (t === 'abort') {
-					$ocrPromise.reject({ type: 'cancelled', stat: 'Cancelled' });
-					return;
-				}
-				if (attempt < maxAttempts) {
-					if (isFirefox) {
-						browser.runtime.sendMessage({
-							evt: 'set-server-responsetime',
-							serverId: ocrAPIInfo.id,
-							serverResponseTime: -1
-						}).then(function () {
-							OCRTranslator.setStatus('progress',
-								'Retrying on server ' + (attempt + 1) + ' of ' + maxAttempts + '\u2026', true);
-							formData = null;
-							_postToOCR($ocrPromise, postData, attempt, second_engine, third_engine);
-						});
-					} else {
-						browser.runtime.sendMessage({
-							evt: 'set-server-responsetime',
-							serverId: ocrAPIInfo.id,
-							serverResponseTime: -1
-						}, function () {
-							OCRTranslator.setStatus('progress',
-								'Retrying on server ' + (attempt + 1) + ' of ' + maxAttempts + '\u2026', true);
-							formData = null;
-							_postToOCR($ocrPromise, postData, attempt, second_engine, third_engine);
-						});
+				},
+				error: function (x, t) {
+					console.error('OCR API Error Trace:', { status: x.status, text: x.responseText, type: t });
+					var errData;
+					var stat;
+					if (t === 'abort') {
+						$ocrPromise.reject({ type: 'cancelled', stat: 'Cancelled' });
+						return;
 					}
-					return false;
-				}
-				try {
-					errData = JSON.parse(x.responseText);
-				} catch (e) {
-					errData = '';
-				}
-				if (t === 'timeout') {
-					stat = 'OCR request timed out';
-				} else if (x.status === 404) {
-					stat = 'OCR service is currently unavailable';
-				} else if (t == 'error') {
+					if (attempt < maxAttempts) {
+						if (isFirefox) {
+							browser.runtime.sendMessage({
+								evt: 'set-server-responsetime',
+								serverId: ocrAPIInfo.id,
+								serverResponseTime: -1
+							}).then(function () {
+								OCRTranslator.setStatus('progress',
+									'Retrying on server ' + (attempt + 1) + ' of ' + maxAttempts + '\u2026', true);
+								formData = null;
+								_postToOCR($ocrPromise, postData, attempt, second_engine, third_engine);
+							});
+						} else {
+							browser.runtime.sendMessage({
+								evt: 'set-server-responsetime',
+								serverId: ocrAPIInfo.id,
+								serverResponseTime: -1
+							}, function () {
+								OCRTranslator.setStatus('progress',
+									'Retrying on server ' + (attempt + 1) + ' of ' + maxAttempts + '\u2026', true);
+								formData = null;
+								_postToOCR($ocrPromise, postData, attempt, second_engine, third_engine);
+							});
+						}
+						return false;
+					}
+					try {
+						errData = JSON.parse(x.responseText);
+					} catch (e) {
+						errData = '';
+					}
+					if (t === 'timeout') {
+						stat = 'OCR request timed out';
+					} else if (x.status === 404) {
+						stat = 'OCR service is currently unavailable';
+					} else if (t == 'error') {
 						// Probably no internet connection or server is not reached...
 						stat = 'No internet connection, or can not reach OCR server';
 					} else {
@@ -947,27 +947,27 @@ if (typeof browser === "undefined") {
 					});
 				}
 			});
-});
-}
-
-
-function fullViewAvailable(el) {
-	var elementTop = $(el).offset().top;
-	var elementBottom = elementTop + $(el).outerHeight();
-	var viewportTop = $( "#copyfish-tab-image-container" ).scrollTop();
-	var viewportBottom = viewportTop + $( "#copyfish-tab-image-container" ).height();
-	let vl = ( elementBottom > viewportTop ) && ( elementTop < viewportBottom - $( el ).height());
-	return vl;
-}
-
-function adjustHeightScreenCapture() {
-	if (!fullViewAvailable($('#ocrext-can').get(0))) {
-		$('#copyfish-tab-image-container').css({ 'height': '50%' });
+		});
 	}
-	else {
-		$('#copyfish-tab-image-container').css({ 'height': 'auto' });
+
+
+	function fullViewAvailable(el) {
+		var elementTop = $(el).offset().top;
+		var elementBottom = elementTop + $(el).outerHeight();
+		var viewportTop = $("#copyfish-tab-image-container").scrollTop();
+		var viewportBottom = viewportTop + $("#copyfish-tab-image-container").height();
+		let vl = (elementBottom > viewportTop) && (elementTop < viewportBottom - $(el).height());
+		return vl;
 	}
-}
+
+	function adjustHeightScreenCapture() {
+		if (!fullViewAvailable($('#ocrext-can').get(0))) {
+			$('#copyfish-tab-image-container').css({ 'height': '50%' });
+		}
+		else {
+			$('#copyfish-tab-image-container').css({ 'height': 'auto' });
+		}
+	}
 
 	/*
 	 * Responsible for:
@@ -979,7 +979,7 @@ function adjustHeightScreenCapture() {
 	 *
 	 */
 
-	 const _processOCRTranslate = (request={}) => {
+	const _processOCRTranslate = (request = {}) => {
 		// var data = new FormData();
 		var dataURI;
 		var ocrPostData;
@@ -1017,19 +1017,19 @@ function adjustHeightScreenCapture() {
 			}
 			OCRTranslator.resetOverlayInformation();
 			$process
-			.done(function (fromCache) {
-				$('.ocrext-btn').removeClass('disabled');
-				var successMsg;
-				if (fromCache) {
-					successMsg = 'Text loaded';
-				} else {
-					var elapsedSec = ((Date.now() - ocrStartTime) / 1000).toFixed(2);
-					successMsg = browser.i18n.getMessage('ocrSuccessStatus') + ' (' + elapsedSec + 's)';
-				}
-				OCRTranslator.setStatus('success', successMsg);
-				OCRTranslator.enableContent();
-			})
-			.fail(function (err) {
+				.done(function (fromCache) {
+					$('.ocrext-btn').removeClass('disabled');
+					var successMsg;
+					if (fromCache) {
+						successMsg = 'Text loaded';
+					} else {
+						var elapsedSec = ((Date.now() - ocrStartTime) / 1000).toFixed(2);
+						successMsg = browser.i18n.getMessage('ocrSuccessStatus') + ' (' + elapsedSec + 's)';
+					}
+					OCRTranslator.setStatus('success', successMsg);
+					OCRTranslator.enableContent();
+				})
+				.fail(function (err) {
 					// All API failure handling is done here, the AJAX callbacks simply relay
 					// necessary data to this callback
 					$('.ocrext-btn').removeClass('disabled');
@@ -1046,7 +1046,7 @@ function adjustHeightScreenCapture() {
 					OCRTranslator.enableContent();
 					//console.error('Visual Copy Exception', err);
 				})
-			.always(function () {
+				.always(function () {
 					// dereference expensive objects, just in case
 					// everything terminates with $process, single point of extry/exit
 					dataURI = null;
@@ -1056,12 +1056,12 @@ function adjustHeightScreenCapture() {
 					onOCRCopy(true)
 				});
 			$ocr
-			.done(function (text, overlayInfo, opts = {}) {
-				$('.ocrext-ocr-message')
-				.val(text)
-				.trigger('ocrResultChanged');
-				$('#popup_support_text').text(text);
-				_updateNanoTitle();
+				.done(function (text, overlayInfo, opts = {}) {
+					$('.ocrext-ocr-message')
+						.val(text)
+						.trigger('ocrResultChanged');
+					$('#popup_support_text').text(text);
+					_updateNanoTitle();
 					// dataURI should be visible as it is encapsulated within _processOCRTranslate
 					// the mad-world of async programming
 					// OCRTranslator.textOverlay.setOverlayInformation(overlayInfo, dataURI);
@@ -1072,23 +1072,23 @@ function adjustHeightScreenCapture() {
 					}
 					$process.resolve(opts.fromCache || false);
 				})
-.fail(function (err) {
+				.fail(function (err) {
 					//  receive error and relay it to $process
 					$process.reject(err);
 				});
-if (
-	(dims.width < OCR_LIMIT.min.width && dims.height < OCR_LIMIT.min.height) ||
-	(dims.width > OCR_LIMIT.max.width && dims.height > OCR_LIMIT.max.height)
-	) {
-	$ocr.reject({
-		type: 'OCR',
-		stat: 'OCR conversion failed',
-		message: OCR_DIMENSION_ERROR,
-		details: null,
-		code: null
-	});
-return false;
-}
+			if (
+				(dims.width < OCR_LIMIT.min.width && dims.height < OCR_LIMIT.min.height) ||
+				(dims.width > OCR_LIMIT.max.width && dims.height > OCR_LIMIT.max.height)
+			) {
+				$ocr.reject({
+					type: 'OCR',
+					stat: 'OCR conversion failed',
+					message: OCR_DIMENSION_ERROR,
+					details: null,
+					code: null
+				});
+				return false;
+			}
 
 			// Disable widget, show spinner
 			_ocrCancelled = false;
@@ -1108,12 +1108,12 @@ return false;
 					//check Ocr Engine
 					if (OcrEngine === "OcrSpace") {
 						_postToOCR($ocr, ocrPostData, 0);
-					}else if (OcrEngine === "OcrLocal" || OcrEngine === "OcrLocalBest") {
-						var ocrLang =   OPTIONS.visualCopyOCRLang;
+					} else if (OcrEngine === "OcrLocal" || OcrEngine === "OcrLocalBest") {
+						var ocrLang = OPTIONS.visualCopyOCRLang;
 						browser.runtime.sendMessage({
 							evt: 'captureScreenLocalOcr',
-							ocrLang:ocrLang,
-							imagepath:dataURI,
+							ocrLang: ocrLang,
+							imagepath: dataURI,
 							bestMode: OcrEngine === "OcrLocalBest"
 						}, function (data) {
 							if (browser.runtime.lastError) {
@@ -1140,22 +1140,22 @@ return false;
 				dataURItoBlob(dataURI).then(function (url) {
 					ocrPostData.blob = url;
 					//check Ocr Engine
-					if(request.ocrText && request.forExternalTab){
-						return $ocr.resolve(request.ocrText, request.overlayInfo || '', { 
+					if (request.ocrText && request.forExternalTab) {
+						return $ocr.resolve(request.ocrText, request.overlayInfo || '', {
 							translatedTextIfAny: request.translatedTextIfAny || '',
-							currentZoomLevel   : request.currentZoomLevel || 0,
-							fromCache          : true
+							currentZoomLevel: request.currentZoomLevel || 0,
+							fromCache: true
 						});
 					}
 					if (OcrEngine === "OcrSpace") {
 						_postToOCR($ocr, ocrPostData, 0);
 
 					} else if (OcrEngine === "OcrLocal" || OcrEngine === "OcrLocalBest") {
-						var ocrLang =   OPTIONS.visualCopyOCRLang;
+						var ocrLang = OPTIONS.visualCopyOCRLang;
 						browser.runtime.sendMessage({
 							evt: 'captureScreenLocalOcr',
-							ocrLang:ocrLang,
-							imagepath:dataURI,
+							ocrLang: ocrLang,
+							imagepath: dataURI,
 							bestMode: OcrEngine === "OcrLocalBest"
 						}, function (data) {
 							if (browser.runtime.lastError) {
@@ -1169,7 +1169,7 @@ return false;
 							const res = data.result || {};
 							$ocr.resolve(res.ParsedResults[0].ParsedText, res.ParsedResults[0].TextOverlay);
 						});
-					}else if (OcrEngine === "OcrSpaceSecond") {
+					} else if (OcrEngine === "OcrSpaceSecond") {
 						_postToOCR($ocr, ocrPostData, 0, true);
 					} else if (OcrEngine === "OcrSpaceThird") {
 						_postToOCR($ocr, ocrPostData, 0, false, true);
@@ -1180,20 +1180,20 @@ return false;
 			 * $process::done can be called only if OCR and translation succeed
 			 * $process::fail can be called if either OCR or translation fails
 			 */
-			});
-}
+		});
+	}
 
-/*Utility functions - end*/
+	/*Utility functions - end*/
 
 
-/* Event handlers*/
+	/* Event handlers*/
 	/*
 	 * Mouse move event handler. Attached on mousedown and removed on mouseup
 	 */
-	 function onOCRMouseMove(e) {
-	 	var l, t, w, h;
-	 	var scrollTop = $('body').scrollTop();
-	 	if (!scrollTop) {
+	function onOCRMouseMove(e) {
+		var l, t, w, h;
+		var scrollTop = $('body').scrollTop();
+		if (!scrollTop) {
 			// some modern browser hack
 			// Fix issue: https://github.com/teamdocs/copyfish2020/issues/4
 			scrollTop = Math.max($("html").scrollTop(), $('body').scrollTop());
@@ -1222,10 +1222,10 @@ return false;
 			height: h
 		});
 		Mask.reposition({
-			tl: [ l + SELECTOR_BORDER, t + SELECTOR_BORDER ],
-			tr: [ l + w + SELECTOR_BORDER, t + SELECTOR_BORDER ],
-			bl: [ l + SELECTOR_BORDER, t + h + SELECTOR_BORDER ],
-			br: [ l + w + SELECTOR_BORDER, t + h + SELECTOR_BORDER ]
+			tl: [l + SELECTOR_BORDER, t + SELECTOR_BORDER],
+			tr: [l + w + SELECTOR_BORDER, t + SELECTOR_BORDER],
+			bl: [l + SELECTOR_BORDER, t + h + SELECTOR_BORDER],
+			br: [l + w + SELECTOR_BORDER, t + h + SELECTOR_BORDER]
 		});
 	}
 	/*
@@ -1234,18 +1234,18 @@ return false;
 	 * rectangle onto the page.
 	 * Adds the mousemove and mouseup events
 	 */
-	 function onOCRMouseDown(e) {
-	 	if (!IS_CAPTURED) {
-	 		IS_CAPTURED = true;
-	 	} else {
-	 		return true;
-	 	}
-	 	var $body = $('body');
-	 	$('.ocrext-mask p.ocrext-element').css('transform', 'translate(-50%, -50%) scale(0,0)');
-	 	$SELECTOR = $('<div class="ocrext-selector"></div>');
-	 	$SELECTOR.appendTo($body);
-	 	var scrollTop = $body.scrollTop();
-	 	if (!scrollTop) {
+	function onOCRMouseDown(e) {
+		if (!IS_CAPTURED) {
+			IS_CAPTURED = true;
+		} else {
+			return true;
+		}
+		var $body = $('body');
+		$('.ocrext-mask p.ocrext-element').css('transform', 'translate(-50%, -50%) scale(0,0)');
+		$SELECTOR = $('<div class="ocrext-selector"></div>');
+		$SELECTOR.appendTo($body);
+		var scrollTop = $body.scrollTop();
+		if (!scrollTop) {
 			// some modern browser hack
 			// Fix issue: https://github.com/teamdocs/copyfish2020/issues/4
 			scrollTop = Math.max($("html").scrollTop(), $body.scrollTop());
@@ -1301,7 +1301,7 @@ return false;
 				})
 				.show();
 				*/
-				$dialog
+			$dialog
 				.animate({
 					// zIndex: MAX_ZINDEX,
 					// opacity: 0,
@@ -1319,9 +1319,9 @@ return false;
 	/*
 	 * Recapture + re-OCR: hides dialog, grabs a fresh screenshot, then processes.
 	 */
-	 function onOCRRedo() {
-	 	$('.ocrext-wrapper').css('opacity', 0);
-	 	OCRTranslator.reset();
+	function onOCRRedo() {
+		$('.ocrext-wrapper').css('opacity', 0);
+		OCRTranslator.reset();
 		// timeout to ensure that a render is done before initiating next capture cycle
 		setTimeout(function () {
 			_captureImageOntoCanvas(isImageParse, imageParseData).done(function () {
@@ -1394,16 +1394,16 @@ return false;
 	 * Recapture button click handler
 	 * Hands control back to the user to recapture the viewport
 	 */
-	 function onOCRRecapture() {
-	 	IS_CAPTURED = false;
-	 	OCRTranslator.slideDown();
+	function onOCRRecapture() {
+		IS_CAPTURED = false;
+		OCRTranslator.slideDown();
 		// reset stuff
 		OCRTranslator.reset();
 		Mask.addToBody().show();
 		$('body').addClass('ocrext-ch');
 	}
 
-	 function openGoogleTranslatePage() {
+	function openGoogleTranslatePage() {
 		getOptions().done(function () {// let the reload all option in real time..
 			// update option in real time and do the stuff..
 			let $textarea = $('textarea.ocrext-result').val();
@@ -1425,7 +1425,7 @@ return false;
 			let translatedText = $textarea;
 			let userLang = navigator.language;
 			if (userLang.indexOf('-') !== -1) {
-				userLang = userLang.split('-')[ 0 ] || userLang;
+				userLang = userLang.split('-')[0] || userLang;
 			}
 			let $text = `https://www.deepl.com/en/translator#${userLang}/${userLang}/${encodeURIComponent(translatedText)}`;
 			browser.runtime.sendMessage({
@@ -1437,7 +1437,7 @@ return false;
 
 
 
-	window.onOCRClose = function(e) {
+	window.onOCRClose = function (e) {
 		if (e) {
 			e.stopImmediatePropagation();
 			e.preventDefault();
@@ -1445,11 +1445,11 @@ return false;
 
 		// Eliminar físicamente el elemento de la página
 		$('.ocrext-wrapper').remove();
-		
+
 		// Limpieza adicional
 		$('body').removeClass('ocrext-overlay ocrext-ch');
 		OCRTranslator.disable();
-		
+
 		browser.runtime.sendMessage({
 			evt: 'capture-done'
 		});
@@ -1486,7 +1486,7 @@ return false;
 		var message = messageTextArea.val();
 		let activeTab = $('div[aria-selected="true"]');
 		var text = null;
-		let animatedText = translateAuto && typeof translateAuto=='object' ? (obj) => {
+		let animatedText = translateAuto && typeof translateAuto == 'object' ? (obj) => {
 			let oldText = obj ? $(obj).text() : 'Copy to clipboard';
 			let objElm = obj && $(obj) || $('.ocrext-ocr-copy');
 			// Lock the button's current width before swapping text so the row never reflows.
@@ -1502,13 +1502,13 @@ return false;
 		} else {
 			switch (OPTIONS.copyType) {
 				case 'Text':
-				text = message;
-				break;
+					text = message;
+					break;
 				case 'Translation':
-				text = '';
-				break;
+					text = '';
+					break;
 				default:
-				text = message;
+					text = message;
 			}
 		}
 		if (activeTab.length === 0) {
@@ -1534,7 +1534,7 @@ return false;
 	 * The main translator module. Simple module pattern, no fancy constructors or factories
 	 */
 
-	 var OCRTranslator = {
+	var OCRTranslator = {
 		/*
 		 * Pseudo constructor
 		 * init: load resources and bind runtime listener, once the $ready deferred
@@ -1544,7 +1544,7 @@ return false;
 		 * (delegated to body)
 		 */
 
-		 init: function () {
+		init: function () {
 			// get config information
 			var self = this;
 			this._initializing = true;
@@ -1555,7 +1555,7 @@ return false;
 			browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 				// Global click listener for all OCR interface elements
 				if (!window._ocrGlobalListenersAdded) {
-					window.addEventListener('click', function(e) {
+					window.addEventListener('click', function (e) {
 						// 1. Close Button
 						const closeBtn = e.target.closest('#copyfish-close-button');
 						if (closeBtn) {
@@ -1652,7 +1652,7 @@ return false;
 							});
 						} else {
 							$ready.done(function () {
-								$readyMsgDialog.done(function(){
+								$readyMsgDialog.done(function () {
 									self._initialize();
 									sendResponse({
 										farewell: 'isavailable:OK'
@@ -1712,7 +1712,7 @@ return false;
 					// 	})
 					// 	.show();
 					$dialog
-					.animate({
+						.animate({
 							// zIndex: MAX_ZINDEX,
 							// opacity: 0,
 							bottom: -$dialog.height()
@@ -1724,7 +1724,7 @@ return false;
 						_processOCRTranslate();
 					});
 				}
-				else if (request.evt == 'show-message-dialog-native-app'){
+				else if (request.evt == 'show-message-dialog-native-app') {
 					let self = this;
 					// _bootStrapMessageDialog().then(function () {
 					// 	self.showNativeAppSupportMeessage();
@@ -1740,37 +1740,37 @@ return false;
 					let self = this;
 					let message = browser.i18n.getMessage('captureNotAvailable');
 					let buttons = [
-					{
-						label: 'Take Desktop Screenshot',
-						cb: () => {
-							dialogOverlay.hardClose();
-							browser.runtime.sendMessage({
-								evt: 'captureScreen'
-							});
+						{
+							label: 'Take Desktop Screenshot',
+							cb: () => {
+								dialogOverlay.hardClose();
+								browser.runtime.sendMessage({
+									evt: 'captureScreen'
+								});
+							}
+						},
+						{
+							label: 'Try again Web Screenshot',
+							cb: () => {
+								dialogOverlay.closeDialog();
+								browser.runtime.sendMessage({
+									evt: 'activate'
+								});
+							}
+						},
+						{
+							label: 'Cancel',
+							cb: () => { dialogOverlay.closeDialog(); }
 						}
-					},
-					{
-						label: 'Try again Web Screenshot',
-						cb: () => {
-							dialogOverlay.closeDialog();
-							browser.runtime.sendMessage({
-								evt: 'activate'
-							});
-						}
-					},
-					{
-						label: 'Cancel',
-						cb: () => { dialogOverlay.closeDialog(); }
-					}
 					];
 					dialogOverlay.showDialog('Copyfish', message, buttons);
 				}
 				else if (request.evt == 'show-warning' && request.data) {
 					let buttons = [
-					{
-						label: 'Ok',
-						cb: () => { dialogOverlay.closeDialog(); }
-					}
+						{
+							label: 'Ok',
+							cb: () => { dialogOverlay.closeDialog(); }
+						}
 					];
 					dialogOverlay.hardClose();
 					setTimeout(function () {
@@ -1825,52 +1825,51 @@ return false;
 					let src = imgSrcRegex.exec(imageContent);
 					sendResponse(src);
 
-				}else if (request.evt === "getDevicePixelRatio") {
-					sendResponse(devicePixelRatio);					
+				} else if (request.evt === "getDevicePixelRatio") {
+					sendResponse(devicePixelRatio);
 				}
 			});
-$(document).ready(function () {
-	if (!self._initialized && !self._initializing) {
-		$ready.done(function () {
-			self._initialize();
-		});
-	}
-});
-return this;
-},
-showNativeAppSupportMeessage: function () {
-	let buttons = [
-	{
-		label: 'Download the helper app',
-		cb: () => {
-			dialogOverlay.closeDialog();
-			window.open('https://ui.vision/rpa/x/download','_blank');
-		}
-	},
-	{
-		label: 'Read more',
-		cb: () => {
-			dialogOverlay.closeDialog();
-			window.open('https://ocr.space/rd/copyfish?help=desktop','_blank');
-		}
-	},
-	{
-		label: 'Cancel',
-		cb: () => { dialogOverlay.closeDialog(); }
-	}
-	];
-	let message = browser.i18n.getMessage('nativeAppNotSupported');
-	if ($('#cfish-popup-message-dialog').length) 
-	{
-		dialogOverlay.showDialog('Copyfish', message, buttons);
-		return;
-	}
-},
-_initialize: function () {
+			$(document).ready(function () {
+				if (!self._initialized && !self._initializing) {
+					$ready.done(function () {
+						self._initialize();
+					});
+				}
+			});
+			return this;
+		},
+		showNativeAppSupportMeessage: function () {
+			let buttons = [
+				{
+					label: 'Download the helper app',
+					cb: () => {
+						dialogOverlay.closeDialog();
+						window.open('https://ui.vision/rpa/x/download', '_blank');
+					}
+				},
+				{
+					label: 'Read more',
+					cb: () => {
+						dialogOverlay.closeDialog();
+						window.open('https://ocr.space/rd/copyfish?help=desktop', '_blank');
+					}
+				},
+				{
+					label: 'Cancel',
+					cb: () => { dialogOverlay.closeDialog(); }
+				}
+			];
+			let message = browser.i18n.getMessage('nativeAppNotSupported');
+			if ($('#cfish-popup-message-dialog').length) {
+				dialogOverlay.showDialog('Copyfish', message, buttons);
+				return;
+			}
+		},
+		_initialize: function () {
 			// kind of like using a lock
 			this._initializing = false;
 			this._initialized = true;
-			ISPOSITIONED = [ 'absolute', 'relative', 'fixed' ].indexOf($('body').css('position')) >= 0;
+			ISPOSITIONED = ['absolute', 'relative', 'fixed'].indexOf($('body').css('position')) >= 0;
 			this.initWidgets();
 			this.bindEvents();
 			this.addIconToTranslateButton();
@@ -1897,7 +1896,6 @@ _initialize: function () {
 				</svg>`, 'image/svg+xml').documentElement;
 			$translateButtonDeeplImg.empty().append(svg2);
 		},
-		},
 
 		initWidgets: function () {
 			const parser = new DOMParser();
@@ -1905,9 +1903,9 @@ _initialize: function () {
 			while (doc.body.firstChild) {
 				document.body.appendChild(doc.body.firstChild);
 			}
-			
+
 			// Set icons
-			
+
 			// Set icons
 			$('#deepl_translate_button img').attr('src', browser.runtime.getURL('OCR/images/deepl.jpg'));
 			$('#popup_translate_button img').attr('src', browser.runtime.getURL('OCR/images/translate.png'));
@@ -1935,111 +1933,111 @@ _initialize: function () {
 		 * Bind listeners for interactive elements exposed to user
 		 * click - redo ocr, recapture, close, copy-to-clipboard
 		 */
-		 bindEvents: function () {
-		 	var $body = $('body');
-		 	let $translateButton = $('#popup_translate_button');
-		 	let $translateButtonDeepl = $('#deepl_translate_button');
-		 	var self = this;
-		 	$translateButtonDeepl
-		 	.on('click', $translateButtonDeepl, openDeeplTransatePage);
-		 	$translateButton
-		 	.on('click', $translateButton, openGoogleTranslatePage);
-		 	$body
-		 	.on('dblclick', '.ocrext-textoverlay-container', function () {
-		 		if ($('#ocrext-can').parents('.ocrext-content').hasClass('ocrext-disabled')) {
-		 			return true;
-		 		}
-		 		if (OPTIONS.visualCopyTextOverlay) {
-		 			self.showOverlayTab();
-		 		} else {
-		 			window.alert('Please enable the "Show Text Overlay" option to view text overlays.');
-		 		}
-		 	})
-		 	.on('dblclick', '#ocrext-can', function () {
-		 		if ($(this).parents('.ocrext-content').hasClass('ocrext-disabled')) {
-		 			return true;
-		 		}
-		 		if (OPTIONS.visualCopyTextOverlay) {
-		 			self.showOverlayTab();
-		 		} else {
-		 			window.alert('Please enable the "Show Text Overlay" option to view text overlays.');
-		 		}
-		 	})
-		 	.on('click', '.ocrext-cancel-ocr', function (e) {
-		 		e.stopImmediatePropagation();
-		 		e.preventDefault();
-		 		_ocrCancelled = true;
-		 		if (_currentOcrXhr) {
-		 			_currentOcrXhr.abort();
-		 			_currentOcrXhr = null;
-		 		}
-		 	})
-		 	.on('click', 'header.ocrext-header', function (e) {
-		 		/*click handler for header — cycles: full → minimized → nano → full*/
-		 		if ($(e.target).closest('a').length) return; // Do not toggle if clicking settings/close icons
+		bindEvents: function () {
+			var $body = $('body');
+			let $translateButton = $('#popup_translate_button');
+			let $translateButtonDeepl = $('#deepl_translate_button');
+			var self = this;
+			$translateButtonDeepl
+				.on('click', $translateButtonDeepl, openDeeplTransatePage);
+			$translateButton
+				.on('click', $translateButton, openGoogleTranslatePage);
+			$body
+				.on('dblclick', '.ocrext-textoverlay-container', function () {
+					if ($('#ocrext-can').parents('.ocrext-content').hasClass('ocrext-disabled')) {
+						return true;
+					}
+					if (OPTIONS.visualCopyTextOverlay) {
+						self.showOverlayTab();
+					} else {
+						window.alert('Please enable the "Show Text Overlay" option to view text overlays.');
+					}
+				})
+				.on('dblclick', '#ocrext-can', function () {
+					if ($(this).parents('.ocrext-content').hasClass('ocrext-disabled')) {
+						return true;
+					}
+					if (OPTIONS.visualCopyTextOverlay) {
+						self.showOverlayTab();
+					} else {
+						window.alert('Please enable the "Show Text Overlay" option to view text overlays.');
+					}
+				})
+				.on('click', '.ocrext-cancel-ocr', function (e) {
+					e.stopImmediatePropagation();
+					e.preventDefault();
+					_ocrCancelled = true;
+					if (_currentOcrXhr) {
+						_currentOcrXhr.abort();
+						_currentOcrXhr = null;
+					}
+				})
+				.on('click', 'header.ocrext-header', function (e) {
+					/*click handler for header — cycles: full → minimized → nano → full*/
+					if ($(e.target).closest('a').length) return; // Do not toggle if clicking settings/close icons
 
-		 		var $wrapper = $('.ocrext-wrapper');
-		 		if ($wrapper.hasClass('ocrext-wrapper-nano')) {
-		 			// stage 3 → stage 1: full — clear nano-title inline style so CSS display:none wins
-		 			$wrapper.removeClass('ocrext-wrapper-minimized ocrext-wrapper-nano');
-		 			$('.ocrext-nano-title').css('display', '');
-		 		} else if ($wrapper.hasClass('ocrext-wrapper-minimized')) {
-		 			// stage 2 → stage 3: nano (header + buttons only)
-		 			$wrapper.addClass('ocrext-wrapper-nano');
-		 			_updateNanoTitle();
-		 		} else {
-		 			// stage 1 → stage 2: minimized
-		 			$wrapper.addClass('ocrext-wrapper-minimized');
-		 		}
-		 	})
-		 	/* Legacy listeners removed - handled by global persistent listener */
-		 	.on('click', 'a.ocrext-open-tab-link, .ocrext-textoverlay-container', function (e) {
-		 		e.stopPropagation();
-		 		let $canvas = $('#ocrext-can');
-		 		let $canvasOrig = $('#ocrext-canOrig');
-		 		browser.runtime.sendMessage({
-		 			evt: 'imageOcrInTab',
-		 			ocrText: $('.ocrext-ocr-message').val(),
-		 			overlayInfo: self._overlay || '',
-		 			data: $('#ocrext-can').get(0).toDataURL(),
-		 			translatedTextIfAny: '',
-		 			currentZoomLevel: $canvas.width() / $canvasOrig.width(),
-		 		});
-		 	});
-		 	/*ESC handler. */
-		 	$(document).on('keyup', function (e) {
-		 		if (e.keyCode === 27) {
-		 			onOCRClose();
-		 		}
-		 	});
-		 	return this;
-		 },
+					var $wrapper = $('.ocrext-wrapper');
+					if ($wrapper.hasClass('ocrext-wrapper-nano')) {
+						// stage 3 → stage 1: full — clear nano-title inline style so CSS display:none wins
+						$wrapper.removeClass('ocrext-wrapper-minimized ocrext-wrapper-nano');
+						$('.ocrext-nano-title').css('display', '');
+					} else if ($wrapper.hasClass('ocrext-wrapper-minimized')) {
+						// stage 2 → stage 3: nano (header + buttons only)
+						$wrapper.addClass('ocrext-wrapper-nano');
+						_updateNanoTitle();
+					} else {
+						// stage 1 → stage 2: minimized
+						$wrapper.addClass('ocrext-wrapper-minimized');
+					}
+				})
+				/* Legacy listeners removed - handled by global persistent listener */
+				.on('click', 'a.ocrext-open-tab-link, .ocrext-textoverlay-container', function (e) {
+					e.stopPropagation();
+					let $canvas = $('#ocrext-can');
+					let $canvasOrig = $('#ocrext-canOrig');
+					browser.runtime.sendMessage({
+						evt: 'imageOcrInTab',
+						ocrText: $('.ocrext-ocr-message').val(),
+						overlayInfo: self._overlay || '',
+						data: $('#ocrext-can').get(0).toDataURL(),
+						translatedTextIfAny: '',
+						currentZoomLevel: $canvas.width() / $canvasOrig.width(),
+					});
+				});
+			/*ESC handler. */
+			$(document).on('keyup', function (e) {
+				if (e.keyCode === 27) {
+					onOCRClose();
+				}
+			});
+			return this;
+		},
 
 		/*
 		 * Enable selection within the viewport. Render the HTML if it does not already exist
 		 * Why render again? Some rogue pages might empty the entire HTML content for some reason
 		 */
-		 enable: function () {
-		 	var $body = $('body');
+		enable: function () {
+			var $body = $('body');
 			/* check again before enabling selection. If the page has decided to empty body and
 			 * rerender, the extension code will also be lost
 			 */
-			 if (!$body.find('.ocrext-wrapper').length) {
-			 	const parser = new DOMParser();
-			 	const doc = parser.parseFromString(HTMLSTRCOPY, 'text/html');
-			 	while (doc.body.firstChild) {
-			 		document.body.appendChild(doc.body.firstChild);
-			 	}
-			 }
-			 $body.addClass('ocrext-overlay ocrext-ch')
-			 .find('.ocrext-wrapper')
-			 .hide();
-			 if (OPTIONS.status && OPTIONS.status.toLowerCase() === 'free plan') {
-			 	$('.ocrext-title span').text(appName);
-			 } else {
-			 	$('.ocrext-title span').text(appName + " " + OPTIONS.status);
-			 }
-			 OCRTranslator.reset();
+			if (!$body.find('.ocrext-wrapper').length) {
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(HTMLSTRCOPY, 'text/html');
+				while (doc.body.firstChild) {
+					document.body.appendChild(doc.body.firstChild);
+				}
+			}
+			$body.addClass('ocrext-overlay ocrext-ch')
+				.find('.ocrext-wrapper')
+				.hide();
+			if (OPTIONS.status && OPTIONS.status.toLowerCase() === 'free plan') {
+				$('.ocrext-title span').text(appName);
+			} else {
+				$('.ocrext-title span').text(appName + " " + OPTIONS.status);
+			}
+			OCRTranslator.reset();
 			// show mask
 			Mask.addToBody().show();
 			// instantiate overlay
@@ -2054,22 +2052,22 @@ _initialize: function () {
 		 * Hide the widget. Does not destroy/recreate, the widget size isn't big enough
 		 * to adversely impact page weight
 		 */
-		 disable: function () {
-		 	var $body = $('body');
-		 	try {
-		 		$body.removeClass('ocrext-overlay ocrext-ch')
-		 		.find('.ocrext-wrapper')
-		 		.hide();
-		 		$body.off('mousedown', onOCRMouseDown);
-		 		OCRTranslator.state = 'disabled';
-		 		Mask.remove();
-		 		OCRTranslator.reset();
-		 		IS_CAPTURED = false;
-		 	} catch (e) {
-		 		console.log(e)
-		 	}
-		 	return this;
-		 },
+		disable: function () {
+			var $body = $('body');
+			try {
+				$body.removeClass('ocrext-overlay ocrext-ch')
+					.find('.ocrext-wrapper')
+					.hide();
+				$body.off('mousedown', onOCRMouseDown);
+				OCRTranslator.state = 'disabled';
+				Mask.remove();
+				OCRTranslator.reset();
+				IS_CAPTURED = false;
+			} catch (e) {
+				console.log(e)
+			}
+			return this;
+		},
 
 		// reset anything that requires resetting
 		reset: function () {
@@ -2134,46 +2132,46 @@ _initialize: function () {
 			});
 			*/
 
-			setStatus: function (status, txt, noAutoClose) {
-				if (status === 'error') {
-					$('.ocrext-content').addClass('ocrext-error');
-				} else {
-					$('.ocrext-content').removeClass('ocrext-error');
-				}
-				var isNano = $('.ocrext-wrapper').hasClass('ocrext-wrapper-nano');
-				// In nano mode on success: skip the success message, show OCR text immediately
-				if (status === 'success' && isNano) {
-					_updateNanoTitle();
-					return;
-				}
-				// Hide nano-title and clear any leftover inline style in ALL modes so that
-				// a mid-OCR switch into nano never causes a 50/50 flex split.
-				$('.ocrext-nano-title').css('display', 'none').html('');
-				var statusClass = status === 'error' ? 'ocrext-error' :
-					(status === 'success' ? 'ocrext-success' : 'ocrext-progress');
-				// Write to the overlay-dialog title bar element AND to the legacy
-				// .ocrext-status element used by screencapture.html / ocrlocal.html
-				$('.ocrext-header-status, .ocrext-status')
+		setStatus: function (status, txt, noAutoClose) {
+			if (status === 'error') {
+				$('.ocrext-content').addClass('ocrext-error');
+			} else {
+				$('.ocrext-content').removeClass('ocrext-error');
+			}
+			var isNano = $('.ocrext-wrapper').hasClass('ocrext-wrapper-nano');
+			// In nano mode on success: skip the success message, show OCR text immediately
+			if (status === 'success' && isNano) {
+				_updateNanoTitle();
+				return;
+			}
+			// Hide nano-title and clear any leftover inline style in ALL modes so that
+			// a mid-OCR switch into nano never causes a 50/50 flex split.
+			$('.ocrext-nano-title').css('display', 'none').html('');
+			var statusClass = status === 'error' ? 'ocrext-error' :
+				(status === 'success' ? 'ocrext-success' : 'ocrext-progress');
+			// Write to the overlay-dialog title bar element AND to the legacy
+			// .ocrext-status element used by screencapture.html / ocrlocal.html
+			$('.ocrext-header-status, .ocrext-status')
 				.removeClass('ocrext-success ocrext-error ocrext-progress')
 				.addClass(statusClass)
 				.text(txt);
-				if (!noAutoClose) {
-					setTimeout(function () {
-						$('.ocrext-header-status, .ocrext-status').text('').removeClass('ocrext-success ocrext-error ocrext-progress');
-					}, 10000);
-				}
-			},
-			slideDown: function () {
-				var $dialog = $('.ocrext-wrapper');
-				$dialog.animate({
-					bottom: -$dialog.height()
-				});
-			},
-			slideUp: function () {
-				$('.ocrext-wrapper').css('bottom', WIDGETBOTTOM);
-			},
-			setOverlayInformation: function (overlay, imgDataURI) {
-				this._overlay = overlay;
+			if (!noAutoClose) {
+				setTimeout(function () {
+					$('.ocrext-header-status, .ocrext-status').text('').removeClass('ocrext-success ocrext-error ocrext-progress');
+				}, 10000);
+			}
+		},
+		slideDown: function () {
+			var $dialog = $('.ocrext-wrapper');
+			$dialog.animate({
+				bottom: -$dialog.height()
+			});
+		},
+		slideUp: function () {
+			$('.ocrext-wrapper').css('bottom', WIDGETBOTTOM);
+		},
+		setOverlayInformation: function (overlay, imgDataURI) {
+			this._overlay = overlay;
 			// this._imgDataURI = imgDataURI;
 		},
 		resetOverlayInformation: function () {
@@ -2184,8 +2182,8 @@ _initialize: function () {
 			var $canvas = $('#ocrext-can');
 			var $canvasOrig = $('#ocrext-canOrig');
 			this.textOverlay
-			.setOverlayInformation(this._overlay, $canvas.width(), $canvas.height(), null, customZoom ? customZoom : $canvas.width() / $canvasOrig.width())
-			.show();
+				.setOverlayInformation(this._overlay, $canvas.width(), $canvas.height(), null, customZoom ? customZoom : $canvas.width() / $canvasOrig.width())
+				.show();
 		},
 		showOverlayTab: function () {
 			var $canvas = $('#ocrext-can');
