@@ -91,8 +91,12 @@ function createNoteListItem(note) {
     contentEl.value = note.content;
     editorTitleEl.textContent = 'Editar nota';
     
-    const cancelIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
-    newBtn.innerHTML = `${cancelIcon}<span>Cancelar</span>`; 
+    newBtn.textContent = '';
+    const cancelIconSvg = new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`, 'image/svg+xml').documentElement;
+    const cancelSpan = document.createElement('span');
+    cancelSpan.textContent = 'Cancelar';
+    newBtn.appendChild(cancelIconSvg);
+    newBtn.appendChild(cancelSpan);
     newBtn.classList.add('danger-text');
     status('Editando nota...', 'info', -1);
     switchTab('create');
@@ -127,7 +131,8 @@ function createNoteListItem(note) {
   const openBtn = document.createElement('button');
   openBtn.className = 'btn-icon';
   openBtn.title = 'Editar nota';
-  openBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`;
+  const openIconSvg = new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`, 'image/svg+xml').documentElement;
+  openBtn.appendChild(openIconSvg);
   openBtn.addEventListener('click', (e) => {
     e.stopPropagation(); 
     openNoteForEditing();
@@ -136,7 +141,8 @@ function createNoteListItem(note) {
   const delBtn = document.createElement('button');
   delBtn.className = 'btn-icon delete';
   delBtn.title = 'Eliminar nota';
-  delBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
+  const delIconSvg = new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`, 'image/svg+xml').documentElement;
+  delBtn.appendChild(delIconSvg);
   delBtn.addEventListener('click', async (e) => {
     e.stopPropagation();
     if (!confirm('¿Eliminar esta nota?')) return;
@@ -161,7 +167,7 @@ function createNoteListItem(note) {
 
 async function renderNotes(filterText = '') {
   const notes = await getNotes();
-  notesList.innerHTML = '';
+  notesList.textContent = '';
   
   const lowerCaseFilter = filterText.toLowerCase();
   const filteredNotes = notes.filter(note => 
@@ -170,12 +176,28 @@ async function renderNotes(filterText = '') {
   );
 
   if (filteredNotes.length === 0) {
-    notesList.innerHTML = `
-      <div class="empty-state" style="text-align: center; padding: 40px; opacity: 0.5;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="15" y2="17"></line><line x1="9" y1="9" x2="10" y2="9"></line></svg>
-        <p>No se encontraron notas</p>
-      </div>
-    `;
+    const emptyState = document.createElement('div');
+    emptyState.className = 'empty-state';
+    emptyState.style.textAlign = 'center';
+    emptyState.style.padding = '40px';
+    emptyState.style.opacity = '0.5';
+    
+    const emptyIcon = new DOMParser().parseFromString(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="9" y1="13" x2="15" y2="13"></line>
+        <line x1="9" y1="17" x2="15" y2="17"></line>
+        <line x1="9" y1="9" x2="10" y2="9"></line>
+      </svg>
+    `, 'image/svg+xml').documentElement;
+    
+    const emptyText = document.createElement('p');
+    emptyText.textContent = 'No se encontraron notas';
+    
+    emptyState.appendChild(emptyIcon);
+    emptyState.appendChild(emptyText);
+    notesList.appendChild(emptyState);
     return;
   }
   filteredNotes.sort((a, b) => b.updatedAt - a.updatedAt);
@@ -206,8 +228,12 @@ function clearEditor() {
   contentEl.value = '';
   editorTitleEl.textContent = 'Nueva Nota';
   
-  const clearIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
-  newBtn.innerHTML = `${clearIcon}<span>Limpiar</span>`;
+  newBtn.textContent = '';
+  const clearIconSvg = new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`, 'image/svg+xml').documentElement;
+  const clearSpan = document.createElement('span');
+  clearSpan.textContent = 'Limpiar';
+  newBtn.appendChild(clearIconSvg);
+  newBtn.appendChild(clearSpan);
   newBtn.classList.remove('danger-text');
   titleEl.classList.remove('invalid');
   contentEl.classList.remove('invalid');
@@ -494,7 +520,7 @@ async function initLocalProfile() {
   updateProfileUI();
   
   // Renderizar grid de emojis
-  emojiGrid.innerHTML = '';
+  emojiGrid.textContent = '';
   EMOJI_LIST.forEach(emoji => {
     const span = document.createElement('span');
     span.textContent = emoji;

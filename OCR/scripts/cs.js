@@ -563,7 +563,11 @@ if (typeof browser === "undefined") {
 	 		getOptions();
 	 		let htmlStr= response.htmlStr;
 	 		messageDialogHtml = htmlStr;
-	 		$('body').append(messageDialogHtml);
+	 		const parser = new DOMParser();
+	 		const doc = parser.parseFromString(messageDialogHtml, 'text/html');
+	 		while (doc.body.firstChild) {
+	 			document.body.appendChild(doc.body.firstChild);
+	 		}
 	 		$dfd.resolve();
 	 	});
 	 	return $dfd;
@@ -1340,16 +1344,25 @@ return false;
 		var text = $('.ocrext-ocr-message').val() || '';
 		var maxLen = 240;
 		var $nanoTitle = $('.ocrext-nano-title');
-		var html;
+		$nanoTitle.empty();
 		if (text) {
-			var truncated = text.length > maxLen ? text.substring(0, maxLen) + '\u2026' : text;
-			html = truncated
-				.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-				.replace(/\r\n|\r|\n/g, '<span class="ocrext-nl"> | </span>');
+			const truncated = text.length > maxLen ? text.substring(0, maxLen) + '...' : text;
+			const parts = truncated.split(/\r\n|\r|\n/g);
+			parts.forEach((part, index) => {
+				$nanoTitle.append(document.createTextNode(part));
+				if (index < parts.length - 1) {
+					const span = document.createElement('span');
+					span.className = 'ocrext-nl';
+					span.textContent = ' | ';
+					$nanoTitle.append(span);
+				}
+			});
 		} else {
-			html = '<span class="ocrext-nano-placeholder">Nano mode \u2014 OCR result will appear here\u2026</span>';
+			const span = document.createElement('span');
+			span.className = 'ocrext-nano-placeholder';
+			span.textContent = 'Nano mode - OCR result will appear here...';
+			$nanoTitle.append(span);
 		}
-		$nanoTitle.html(html);
 		// Only make the nano-title visible when actually in nano mode.
 		// In full/minimised mode the CSS display:none rule is sufficient.
 		if ($('.ocrext-wrapper').hasClass('ocrext-wrapper-nano')) {
@@ -1870,19 +1883,28 @@ _initialize: function () {
 
 		addIconToTranslateButton: function () {
 			let $translateButtonImg = $('#popup_translate_button');
-			$translateButtonImg.html(`<svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="32pt" height="32pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+			const parser = new DOMParser();
+			const svg1 = parser.parseFromString(`<svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="32pt" height="32pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
 				<path d="M10 611 c-13 -25 -13 -450 0 -471 7 -12 40 -16 152 -20 l143 -5 19 -53 19 -52 138 0 c126 0 139 2 149 19 13 25 13 450 0 471 -7 12 -40 16 -151 20 l-142 5 -17 50 -17 50 -141 3 c-131 2 -142 1 -152 -17z m344 -229 c42 -125 76 -230 76 -235 0 -8 -361 -10 -384 -1 -14 5 -16 35 -16 229 0 169 3 225 13 228 6 3 62 6 124 6 l111 1 76 -228z m256 99 c6 -12 10 -100 10 -216 0 -116 -4 -204 -10 -216 -10 -17 -22 -19 -122 -19 l-112 0 47 48 c46 47 46 48 35 85 -9 28 -9 40 0 49 9 9 20 4 47 -22 45 -44 59 -30 15 15 l-34 35 24 45 c13 24 32 46 42 48 35 10 18 27 -27 27 -33 0 -45 4 -45 15 0 8 -4 15 -10 15 -5 0 -10 -7 -10 -15 0 -10 -10 -15 -34 -15 -33 0 -35 2 -55 62 -12 34 -21 66 -21 70 0 4 56 8 125 8 113 0 125 -2 135 -19z m-110 -156 c0 -2 -5 -16 -12 -30 -13 -29 -26 -32 -35 -9 -3 9 -13 14 -24 11 -11 -3 -19 2 -22 14 -5 17 1 19 44 19 27 0 49 -2 49 -5z m-50 -81 c0 -8 -4 -14 -10 -14 -5 0 -10 4 -10 9 0 5 -3 18 -7 28 -6 16 -5 16 10 4 9 -7 17 -20 17 -27z"/>
 				</g>
-				</svg>`);
+				</svg>`, 'image/svg+xml').documentElement;
+			$translateButtonImg.empty().append(svg1);
+
 			let $translateButtonDeeplImg = $('#deepl_translate_button');
-			$translateButtonDeeplImg.html(`<svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="30pt" height="30pt" viewBox="0 0 128.000000 128.000000" preserveAspectRatio="xMidYMid meet" ><g transform="translate(0.000000,128.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+			const svg2 = parser.parseFromString(`<svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="30pt" height="30pt" viewBox="0 0 128.000000 128.000000" preserveAspectRatio="xMidYMid meet" ><g transform="translate(0.000000,128.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
 				<path d="M393 1142 c-110 -64 -211 -126 -222 -136 -20 -18 -21 -28 -21 -291 0 -318 -17 -277 155 -375 61 -35 210 -121 332 -191 122 -71 226 -129 232 -129 7 0 11 45 11 138 l0 137 110 63 c61 35 115 72 120 82 6 11 10 126 10 280 0 257 0 261 -22 283 -13 12 -115 75 -229 140 -156 89 -213 117 -240 116 -25 0 -88 -32 -236 -117z m155 -184 c12 -12 22 -33 22 -47 1 -22 15 -34 100 -82 65 -37 103 -53 112 -48 27 17 78 10 103 -16 35 -34 33 -78 -5 -117 -26 -25 -36 -29 -62 -24 -41 8 -66 32 -76 70 -7 25 -24 40 -98 83 -83 49 -92 52 -139 47 -42 -5 -54 -2 -72 15 -30 29 -38 63 -21 97 26 56 89 65 136 22z m162 -343 c0 -5 -32 -28 -70 -49 -56 -32 -70 -45 -70 -63 0 -61 -96 -97 -140 -53 -65 65 -3 169 84 140 31 -10 39 -7 102 29 62 36 69 38 81 23 7 -9 12 -21 13 -27z"></path>
 				</g>
-				</svg>`);
+				</svg>`, 'image/svg+xml').documentElement;
+			$translateButtonDeeplImg.empty().append(svg2);
+		},
 		},
 
 		initWidgets: function () {
-			$('body').append(HTMLSTRCOPY);
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(HTMLSTRCOPY, 'text/html');
+			while (doc.body.firstChild) {
+				document.body.appendChild(doc.body.firstChild);
+			}
 			
 			// Set icons
 			
@@ -2003,7 +2025,11 @@ _initialize: function () {
 			 * rerender, the extension code will also be lost
 			 */
 			 if (!$body.find('.ocrext-wrapper').length) {
-			 	$body.append(HTMLSTRCOPY);
+			 	const parser = new DOMParser();
+			 	const doc = parser.parseFromString(HTMLSTRCOPY, 'text/html');
+			 	while (doc.body.firstChild) {
+			 		document.body.appendChild(doc.body.firstChild);
+			 	}
 			 }
 			 $body.addClass('ocrext-overlay ocrext-ch')
 			 .find('.ocrext-wrapper')
@@ -2048,7 +2074,7 @@ _initialize: function () {
 		// reset anything that requires resetting
 		reset: function () {
 			$('.ocrext-header-status, .ocrext-status').text('').removeClass('ocrext-success ocrext-error ocrext-progress');
-			$('.ocrext-nano-title').html('');
+			$('.ocrext-nano-title').empty();
 			$('.ocrext-result').text('N/A');
 			$('.ocrext-result').attr({
 				title: ''

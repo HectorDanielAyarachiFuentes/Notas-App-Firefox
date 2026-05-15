@@ -321,18 +321,24 @@ async function setupOffscreenDocument() {
   }
 
   const path = 'OCR/offscreen.html';
-  if (await chrome.offscreen.hasDocument()) return;
+  const offscreen = chrome['offscreen'];
   
-  if (creating) {
-    await creating;
-  } else {
-    creating = chrome.offscreen.createDocument({
-      url: path,
-      reasons: ['DOM_PARSER'], 
-      justification: 'Realizar OCR local mediante Tesseract.js',
-    });
-    await creating;
-    creating = null;
+  if (offscreen && typeof offscreen.hasDocument === 'function') {
+    if (await offscreen.hasDocument()) return;
+  }
+  
+  if (offscreen && typeof offscreen.createDocument === 'function') {
+    if (creating) {
+      await creating;
+    } else {
+      creating = offscreen.createDocument({
+        url: path,
+        reasons: ['DOM_PARSER'], 
+        justification: 'Realizar OCR local mediante Tesseract.js',
+      });
+      await creating;
+      creating = null;
+    }
   }
 }
 
