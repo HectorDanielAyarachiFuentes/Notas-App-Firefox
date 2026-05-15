@@ -45,8 +45,6 @@
           <ul id="notesList"></ul>
         </section>
 
-        <!-- ── PESTAÑA: Perfil ── -->
-        <section id="tab-sync" class="tab-panel">
           <div id="local-mode-panel">
             <div class="local-profile-card">
               <div class="local-icon-wrap" id="local-icon-picker-trigger" title="Cambiar ícono">
@@ -68,6 +66,20 @@
                   <span class="status-dot" style="background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
                   <span>Almacenamiento Local Activo</span>
                 </div>
+              </div>
+            </div>
+
+            <div class="backup-section" style="margin-top: 20px; display: flex; flex-direction: column; gap: 12px;">
+              <p style="font-size: 13px; font-weight: 700; opacity: 0.8; margin: 0;">Copias de Seguridad (JSON)</p>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button id="profile-export-btn" class="secondary" style="font-size: 12px; padding: 10px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  <span>Exportar</span>
+                </button>
+                <button id="profile-import-btn" class="secondary" style="font-size: 12px; padding: 10px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  <span>Importar</span>
+                </button>
               </div>
             </div>
 

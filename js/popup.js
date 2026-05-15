@@ -403,6 +403,12 @@ async function exportNotes() {
   }
 }
 
+const profileExportBtn = document.getElementById('profile-export-btn');
+const profileImportBtn = document.getElementById('profile-import-btn');
+
+if (profileExportBtn) profileExportBtn.addEventListener('click', exportNotes);
+if (profileImportBtn) profileImportBtn.addEventListener('click', () => importFileInput.click());
+
 exportBtn.addEventListener('click', exportNotes);
 
 importBtn.addEventListener('click', () => {
