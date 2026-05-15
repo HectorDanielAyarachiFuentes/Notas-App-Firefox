@@ -47,6 +47,14 @@
     "default_panel": "popup.html",
     "default_title": "Notas Pro"
   },
+  "commands": {
+    "_execute_sidebar_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y"
+      },
+      "description": "Abrir Notas Pro en el panel lateral"
+    }
+  },
   "icons": {
     "16": "icons/icon-16.png",
     "48": "icons/icon-48.png",

@@ -7,9 +7,9 @@ import {
 
 // Detección de Panel Lateral vs Popup
 function detectSidePanel() {
-  // Los popups en Chrome suelen tener un tamaño fijo. 
-  // Si las dimensiones son distintas, es probable que sea el panel lateral.
-  const isSide = window.innerWidth > 450 || window.innerHeight > 600;
+  // Ajustamos el umbral para que el layout lateral (menú a la derecha) 
+  // se active incluso en ventanas pequeñas de Firefox.
+  const isSide = window.innerWidth > 200; 
   document.body.classList.toggle('is-side-panel', isSide);
 }
 
@@ -586,12 +586,15 @@ if (pinBtn) {
         chrome.sidePanel.open({ windowId: (await chrome.windows.getCurrent()).id }, () => {
           if (chrome.runtime.lastError) {
             console.warn("sidePanel.open falló:", chrome.runtime.lastError.message);
-            // Fallback si la función está pero falla (ej. por falta de gesto de usuario o soporte parcial)
             openFallbackWindow();
           } else {
             window.close();
           }
         });
+      } else if (browserAPI.sidebarAction && typeof browserAPI.sidebarAction.open === 'function') {
+        // Soporte nativo para abrir el sidebar en Firefox
+        browserAPI.sidebarAction.open();
+        window.close();
       } else {
         openFallbackWindow();
       }
