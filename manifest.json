@@ -1,17 +1,25 @@
 {
   "manifest_version": 3,
   "name": "Notas Pro",
-  "version": "1.0",
+  "version": "2.0.0",
   "description": "Extensión moderna para gestionar notas con sincronización en la nube y OCR.",
+  "author": "Hector Daniel Ayarachi Fuentes",
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "notas-pro@ayarachi.com",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  },
+
   "background": {
-    "scripts": [
-      "js/background.js"
-    ],
+    "scripts": ["js/background.js"],
     "type": "module"
   },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
-  },
+
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -20,17 +28,18 @@
       "128": "icons/icon-128.png"
     }
   },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "notas-pro@extension",
-      "strict_min_version": "142.0",
-      "data_collection_permissions": {
-        "required": [
-          "none"
-        ]
-      }
-    }
+
+  "sidebar_action": {
+    "default_panel": "popup.html",
+    "default_title": "Notas Pro"
   },
+
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+
   "permissions": [
     "storage",
     "downloads",
@@ -39,24 +48,19 @@
     "notifications",
     "contextMenus"
   ],
+
   "host_permissions": [
     "<all_urls>"
   ],
+
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "js/clipboard-monitor.js"
-      ],
+      "matches": ["<all_urls>"],
+      "js": ["js/clipboard-monitor.js"],
       "all_frames": true
     }
   ],
-  "sidebar_action": {
-    "default_panel": "popup.html",
-    "default_title": "Notas Pro"
-  },
+
   "commands": {
     "_execute_sidebar_action": {
       "suggested_key": {
@@ -65,11 +69,11 @@
       "description": "Abrir Notas Pro en el panel lateral"
     }
   },
-  "icons": {
-    "16": "icons/icon-16.png",
-    "48": "icons/icon-48.png",
-    "128": "icons/icon-128.png"
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
+
   "web_accessible_resources": [
     {
       "resources": [
@@ -86,9 +90,7 @@
         "OCR/tessdata_best/*",
         "OCR/images/*"
       ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "matches": ["<all_urls>"]
     }
   ]
 }
