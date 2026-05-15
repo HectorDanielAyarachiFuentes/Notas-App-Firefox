@@ -43,25 +43,29 @@ window.browser = (function () {
 				$('#cfish-popup-message-dialog').hide();
 			},
 			showDialog: function (header,message, buttons) {
-				let buttonHtml = '';
-				//this.hardClose();
-				buttons && buttons.forEach((single,i) => {
-					let { label = '', cb = () => { } } = single;
-					let buttonId = 'cfish-' + i + (Date.now());
-					let btn = '<span><button id="' + buttonId + '" class="cp-show-dialog-button ocrext-btn" title="">' + label + '</button></span>';
-					buttonHtml += btn;
-					if ($('#' + buttonId).length) {
-						$('#' + buttonId).remove();
-					}
-					$('body').off('click', '#' + buttonId);
-					$('body').on('click', '#' + buttonId, cb);
-				});
-				$('#cp-dialog-title').html('');
-				$('#cp-dialog-description').html('');
+
+				$('#cp-dialog-title').text('');
+				$('#cp-dialog-description').text('');
 				$('#cp-dialog-image').attr('src', browser.runtime.getURL("images/copyfish-32.png"));
-				$('#cp-dialog-title').html(header);
-				$('#cp-dialog-description').html(message);
-				buttonHtml && $('#cp-dialog-description').append('<div class="button-row ' + (buttons.length == 1 ? 'btn-center' : '') + '">' + buttonHtml + '</div>');
+				$('#cp-dialog-title').text(header);
+				$('#cp-dialog-description').text(message);
+
+				if (buttons && buttons.length) {
+					const buttonRow = document.createElement('div');
+					buttonRow.className = 'button-row ' + (buttons.length === 1 ? 'btn-center' : '');
+					
+					buttons.forEach((single, i) => {
+						const { label = '', cb = () => { } } = single;
+						const span = document.createElement('span');
+						const button = document.createElement('button');
+						button.className = 'cp-show-dialog-button ocrext-btn';
+						button.textContent = label;
+						button.addEventListener('click', cb);
+						span.appendChild(button);
+						buttonRow.appendChild(span);
+					});
+					$('#cp-dialog-description').append(buttonRow);
+				}
 				$('[popup-name="popup-1"]').fadeIn(300);
 			},
 		}
