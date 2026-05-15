@@ -1,0 +1,78 @@
+{
+  "manifest_version": 3,
+  "name": "Notas Pro",
+  "version": "1.0",
+  "description": "Extensión moderna para gestionar notas con sincronización en la nube y OCR.",
+  "background": {
+    "service_worker": "js/background.js",
+    "type": "module"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "permissions": [
+    "storage",
+    "identity",
+    "downloads",
+    "sidePanel",
+    "activeTab",
+    "scripting",
+    "notifications",
+    "contextMenus",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["js/clipboard-monitor.js"],
+      "all_frames": true
+    }
+  ],
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+  "oauth2": {
+    "client_id": "262441099949-kf9fcfn7o5eg6tmq9c9gh82jjnhg9q1b.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/drive.appdata",
+      "https://www.googleapis.com/auth/userinfo.profile"
+    ]
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "OCR/dialog.html",
+        "OCR/message-dialog.html",
+        "OCR/config/config.json",
+        "OCR/styles/material.min.css",
+        "OCR/styles/cs.css",
+        "OCR/scripts/tesseract.esm.js",
+        "OCR/scripts/worker.min.js",
+        "OCR/scripts/tesseract-core-simd.wasm.js",
+        "OCR/scripts/tesseract-core-simd.wasm",
+        "OCR/tessdata/*",
+        "OCR/tessdata_best/*",
+        "OCR/images/*"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
+

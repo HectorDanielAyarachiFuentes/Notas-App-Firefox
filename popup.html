@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Notas Pro</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="main-layout">
+      <main class="tab-content">
+        <!-- ── PESTAÑA: Nueva Nota ── -->
+        <section id="tab-create" class="tab-panel active">
+          <div class="editor">
+            <h1 id="editor-title">Nueva Nota</h1>
+            <input id="title" placeholder="Título cautivador..." maxlength="100" />
+            <div class="textarea-container">
+              <textarea id="content" placeholder="Escribe algo increíble aquí..."></textarea>
+              <div id="char-counter" class="char-counter">0</div>
+            </div>
+            <div class="editor-actions">
+              <button id="saveBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                <span>Guardar nota</span>
+              </button>
+              <button id="newBtn" class="secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                <span>Limpiar</span>
+              </button>
+              <button id="ocr-btn" class="secondary" title="Extraer texto de la pantalla">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M8 13h2"></path><path d="M8 17h2"></path><path d="M14 13h2"></path><path d="M14 17h2"></path></svg>
+                <span>OCR</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── PESTAÑA: Historial ── -->
+        <section id="tab-history" class="tab-panel">
+          <div style="position: relative;">
+            <input type="search" id="search-input" placeholder="Buscar notas...">
+            <svg style="position: absolute; right: 16px; top: 12px; opacity: 0.4;" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </div>
+          <ul id="notesList"></ul>
+        </section>
+
+        <!-- ── PESTAÑA: Cuenta / Sincronización ── -->
+        <section id="tab-sync" class="tab-panel">
+
+          <!-- Selector de modo: Local / Drive -->
+          <div class="storage-mode-toggle" id="storage-mode-row">
+            <button id="mode-local-btn" class="mode-btn active" title="Modo local">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              <span>Local</span>
+            </button>
+            <button id="mode-drive-btn" class="mode-btn" title="Modo Google Drive">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+              <span>Google Drive</span>
+            </button>
+          </div>
+
+          <!-- ──────── PANEL: MODO LOCAL ──────── -->
+          <div id="local-mode-panel">
+            <div class="local-profile-card">
+              <!-- Ícono editable -->
+              <div class="local-icon-wrap" id="local-icon-picker-trigger" title="Cambiar ícono">
+                <span id="local-profile-icon" class="local-profile-icon">📝</span>
+                <div class="local-icon-edit-badge">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                </div>
+              </div>
+
+              <!-- Nombre editable -->
+              <div class="local-profile-info">
+                <div class="local-name-wrap">
+                  <span id="local-profile-name" class="local-profile-name">Mi Espacio</span>
+                  <button id="edit-local-name-btn" class="btn-icon-xs" title="Cambiar nombre">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                  </button>
+                </div>
+                <input id="local-name-input" class="local-name-input" type="text" maxlength="30" placeholder="Nombre del espacio..." style="display:none;" />
+                <div class="local-status-badge">
+                  <span class="status-dot" style="background: #f59e0b; box-shadow: 0 0 6px #f59e0b;"></span>
+                  <span>Almacenamiento local</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selector de emojis -->
+            <div id="emoji-picker" class="emoji-picker" style="display:none;">
+              <p class="emoji-picker-label">Elige un ícono</p>
+              <div class="emoji-grid" id="emoji-grid"></div>
+            </div>
+
+            <div class="local-info-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>Tus notas se guardan solo en este dispositivo. Activa Drive para sincronizarlas.</span>
+            </div>
+          </div>
+
+          <!-- ──────── PANEL: MODO DRIVE ──────── -->
+          <div id="drive-mode-panel" style="display:none;">
+            <h2 style="font-size: 17px; margin: 0 0 4px 0;">Google Drive</h2>
+            <p style="font-size: 13px; opacity: 0.8; margin-bottom: 20px;">Tus notas seguras y sincronizadas en la nube.</p>
+
+            <div id="sync-logged-out-msg" style="display: none; text-align: center; padding: 20px; flex-direction: column; gap: 16px;">
+              <p style="margin-bottom: 8px;">Inicia sesión para activar la sincronización con Google Drive.</p>
+              <button id="sync-tab-login-btn" class="primary" style="width: 100%;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                <span>Iniciar sesión con Google</span>
+              </button>
+              <div style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <p style="font-size: 12px; opacity: 0.7; margin-bottom: 12px;">O descarga una copia local de tus notas:</p>
+                <button id="sync-tab-export-btn" class="secondary" style="width: 100%;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  <span>Exportar copia local</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="sync-actions" style="display: none; flex-direction: column; gap: 12px;">
+              <div class="sync-option">
+                <span style="font-weight: 600;">Sincronización Auto</span>
+                <label class="switch">
+                  <input type="checkbox" id="auto-sync-toggle">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button id="upload-btn" class="secondary">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  <span>Subir a Drive</span>
+                </button>
+                <button id="download-btn" class="secondary">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  <span>Bajar de Drive</span>
+                </button>
+              </div>
+              <button id="logout-btn" class="secondary" style="color: var(--danger); margin-top: auto;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Cerrar sesión</span>
+              </button>
+            </div>
+
+            <p id="sync-loading-msg" style="display: none; text-align: center;">Conectando...</p>
+          </div>
+
+          <div style="margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+            <button id="deleteAllBtn" class="secondary" style="color: var(--danger); border-color: var(--danger); width: 100%;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              <span>Borrar TODAS las notas</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ── PESTAÑA: CÓMO FUNCIONA ── -->
+        <section id="tab-help" class="tab-panel">
+          <div class="help-container">
+            <div class="beta-badge">🚀 VERSIÓN BETA</div>
+            
+            <section class="help-section">
+              <h2><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Modos de Guardado</h2>
+              <div class="help-card">
+                <div class="help-card-title">💾 Modo Local (Seguro)</div>
+                <p>Tus notas se guardan en una <strong>base de datos interna</strong> del navegador (Storage API). A diferencia de la caché, esta base de datos es persistente: tus notas <strong>no se borran</strong> al limpiar el historial o la caché de Opera/Chrome. Es el lugar más privado y seguro para tus datos locales.</p>
+              </div>
+              <div class="help-card">
+                <div class="help-card-title">☁️ Modo Drive</div>
+                <p>Sincroniza tus notas con una carpeta oculta en tu Google Drive. Permite tener las mismas notas en Chrome y Opera GX automáticamente.</p>
+              </div>
+            </section>
+
+            <section class="help-section">
+              <h2><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h18a2 2 0 0 1 2 2z"></path><path d="M8 11v4"></path><path d="M12 9v6"></path><path d="M16 11v4"></path></svg> Tecnología OCR</h2>
+              <p>Extraé texto de imágenes y videos con dos potentes motores:</p>
+              <div class="help-grid">
+                <div class="help-mini-card">
+                  <strong>OCR Local</strong>
+                  <span>Usa Tesseract.js para procesar todo en tu PC. Privacidad total y sin límites.</span>
+                </div>
+                <div class="help-mini-card">
+                  <strong>OCR Online</strong>
+                  <span>Usa servidores externos para mayor precisión en textos complejos.</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="help-section">
+              <h2><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Captura Inteligente</h2>
+              <div class="help-card">
+                <div class="help-card-title">📋 Copiado Automático</div>
+                <p>Nuestro sistema de monitoreo detecta cuando copiás un texto y lo prepara automáticamente para guardarlo, asegurando que no pierdas ninguna idea importante.</p>
+              </div>
+              <div class="help-card">
+                <div class="help-card-title">🔗 Rastreo de Contexto</div>
+                <p>Cada vez que capturás información, Notas Pro agrega automáticamente la <strong>URL de origen</strong>. Así, siempre sabrás de qué página sacaste el dato y podrás volver a ella con un clic.</p>
+              </div>
+            </section>
+
+            <section class="help-section disclaimer">
+              <p>⚠️ <strong>Aviso:</strong> Esta aplicación fue desarrollada para uso personal del desarrollador. Si sos un usuario avanzado, podés modificar los parámetros en el código fuente. ¡Usala con sabiduría!</p>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <aside class="sidebar-nav">
+        <header class="header-bar">
+          <!-- Perfil Drive (cuando está logueado) -->
+          <div id="user-profile" class="header-content" style="display: none;">
+            <img id="user-avatar" src="" alt="Avatar">
+            <div class="user-info">
+              <span id="user-name">Usuario</span>
+              <div class="status-badge">
+                <span class="status-dot online"></span>
+                <span id="user-email">Conectado</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Perfil local (modo local o desconectado) -->
+          <div id="login-prompt" class="header-content">
+            <div id="local-header-icon" class="local-header-icon">📝</div>
+            <div class="user-info">
+              <span id="local-header-name" class="local-header-name">Mi Espacio</span>
+              <div class="status-badge">
+                <span class="status-dot local-dot"></span>
+                <span id="local-header-sub">Almacenamiento local</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="header-actions">
+            <button id="login-btn" class="btn-icon" title="Iniciar sesión con Google Drive">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+            </button>
+            <button id="pin-btn" class="btn-icon" title="Abrir en panel lateral">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+            </button>
+            <button id="settings-btn" class="btn-icon" title="Ajustes">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
+          </div>
+
+          <div id="settings-dropdown" class="settings-menu" style="display: none;">
+            <div class="settings-header">
+              <h3>Ajustes</h3>
+            </div>
+
+            <div class="settings-section">
+              <div class="setting-item">
+                <span class="setting-label">Tema Visual</span>
+                <select id="theme-selector">
+                  <option value="system">Sistema</option>
+                  <option value="light">Claro</option>
+                  <option value="dark">Oscuro</option>
+                </select>
+              </div>
+              <div class="setting-item">
+                <span class="setting-label" title="Modo de Segmentación (PSM)">Modo OCR</span>
+                <select id="psm-selector">
+                  <option value="auto">✨ Inteligente (Auto-detectar)</option>
+                  <option value="6">📰 Artículos (Párrafos/Columnas)</option>
+                  <option value="3">📊 Tablas (Datos en celdas)</option>
+                </select>
+              </div>
+              <button id="show-guide-btn" class="guide-link-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <span>Ver Guía de Uso</span>
+              </button>
+            </div>
+
+            <div class="settings-header">
+              <h3>Gestión de Datos</h3>
+            </div>
+
+            <div class="settings-section">
+              <div class="data-actions">
+                <button id="export-btn" class="data-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  <span>Exportar</span>
+                </button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+                <button id="import-btn" class="data-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  <span>Importar</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="settings-footer">
+              <a href="https://github.com/HectorDanielAyarachiFuentes" target="_blank" class="about-us-link" title="Visitar perfil de GitHub">
+                <div class="about-us-container">
+                  <span class="speech-bubble">GUAO GUAO! 🐾</span>
+                  <img src="img/dulceflamengo.png" alt="Logo" class="about-us-logo">
+                </div>
+              </a>
+              <p style="font-size: 11px; margin: 0; font-weight: 800; opacity: 0.8;">Notas Pro v<span id="extension-version">1.0</span></p>
+              <p style="font-size: 10px; margin: 4px 0 0 0; font-weight: 600; opacity: 0.5; text-align: center;">Hecho por Hector Daniel Ayarachi Fuentes</p>
+            </div>
+          </div>
+        </header>
+
+        <nav class="tabs">
+          <button class="tab-button active" data-tab="create">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            <span>Nueva</span>
+          </button>
+          <button class="tab-button" data-tab="history">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>Notas</span>
+          </button>
+          <button class="tab-button" data-tab="sync">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Cuenta</span>
+          </button>
+        </nav>
+      </aside>
+    </div>
+
+    </div>
+  </div>
+
+  <!-- ── MODAL: Sincronizar al iniciar sesión ── -->
+  <div id="sync-modal-overlay" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="sync-modal-title">
+    <div class="modal-card" id="sync-modal">
+      <div class="modal-icon">☁️</div>
+      <h2 id="sync-modal-title">¡Sesión iniciada!</h2>
+      <p id="sync-modal-body">Tenés notas guardadas localmente. ¿Querés sincronizarlas con Google Drive?</p>
+      <div class="modal-actions">
+        <button id="sync-modal-yes" class="modal-btn primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Sí, sincronizar
+        </button>
+        <button id="sync-modal-no" class="modal-btn secondary">
+          Solo Drive
+        </button>
+        <button id="sync-modal-cancel" class="modal-btn ghost">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="status" class="status"></div>
+  <script type="module" src="js/popup.js"></script>
+</body>
+</html>
