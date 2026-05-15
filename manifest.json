@@ -23,8 +23,10 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "notas-pro@extension",
-      "strict_min_version": "140.0",
-      "data_collection_permissions": {}
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": []
+      }
     }
   },
   "permissions": [
