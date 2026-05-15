@@ -13,15 +13,19 @@ let memoryToken = null; // Caché en memoria para la sesión actual del popup
  * Alternativa para navegadores que no soportan getAuthToken nativo (ej. Opera, Edge).
  */
 async function getAuthTokenWebFlow(interactive) {
-  const manifest = browserAPI.runtime.getManifest();
-  const clientId = "262441099949-o76obmtc9pncv801urk1elsqrglh9uaf.apps.googleusercontent.com";
+  const clientId = "262441099949-kf9fcfn7o5eg6tmq9c9gh82jjnhg9q1b.apps.googleusercontent.com";
+  const scopesList = [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/drive.appdata",
+    "https://www.googleapis.com/auth/userinfo.profile"
+  ];
   
   // Recuperar el correo guardado para la persistencia
   const storage = await browserAPI.storage.local.get("cached_user_email");
   const userEmail = storage.cached_user_email;
 
-  const scopes = encodeURIComponent(manifest.oauth2.scopes.join(' '));
-  const redirectUri = encodeURIComponent("https://fokahhfcbgbncigpkkdgmhimcfjbjlbl.chromiumapp.org/");
+  const scopes = encodeURIComponent(scopesList.join(' '));
+  const redirectUri = encodeURIComponent(browserAPI.identity.getRedirectURL());
   
   let authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=${scopes}`;
   

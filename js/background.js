@@ -173,6 +173,11 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		return true;
 	}
 
+  if (message.evt === 'checkDesktopCaptureSoftware') {
+    sendResponse({ installed: false });
+    return true;
+  }
+
   console.log('Mensaje no manejado:', message);
   return false;
 });
@@ -205,8 +210,7 @@ async function handleAutoSave(data) {
       type: 'basic',
       iconUrl: '/icons/icon-48.png', 
       title: '¡Nota Guardada!',
-      message: data.content.length > 60 ? data.content.substring(0, 60) + '...' : data.content,
-      silent: true
+      message: data.content.length > 60 ? data.content.substring(0, 60) + '...' : data.content
     }).catch(err => console.warn('Error al mostrar notificación:', err));
   } catch (error) {
     console.error('Error al auto-guardar nota:', error);
@@ -298,6 +302,24 @@ async function handleBackgroundOCR(tab) {
 
 let creating; // A global promise to avoid race conditions
 async function setupOffscreenDocument() {
+  // En Firefox, usamos un iframe oculto en el background page como alternativa a offscreen
+  if (!chrome.offscreen) {
+    if (document.getElementById('ocr-bridge-iframe')) return;
+    
+    console.log('Firefox detected: Creating OCR bridge iframe...');
+    return new Promise((resolve) => {
+      const iframe = document.createElement('iframe');
+      iframe.id = 'ocr-bridge-iframe';
+      iframe.src = chrome.runtime.getURL('OCR/offscreen.html');
+      iframe.style.display = 'none';
+      iframe.onload = () => {
+        console.log('OCR bridge iframe loaded.');
+        resolve();
+      };
+      document.body.appendChild(iframe);
+    });
+  }
+
   const path = 'OCR/offscreen.html';
   if (await chrome.offscreen.hasDocument()) return;
   
@@ -306,12 +328,8 @@ async function setupOffscreenDocument() {
   } else {
     creating = chrome.offscreen.createDocument({
       url: path,
-      reasons: ['DOM_PARSER'], // Best fit for OCR tasks needing DOM/Worker
-      justification: 'Realizar OCR local mediante Tesseract.js que requiere un entorno DOM estable y soporte de Workers.',
-    }, () => {
-      if (chrome.runtime.lastError) {
-        console.warn('Error al crear documento offscreen:', chrome.runtime.lastError.message);
-      }
+      reasons: ['DOM_PARSER'], 
+      justification: 'Realizar OCR local mediante Tesseract.js',
     });
     await creating;
     creating = null;

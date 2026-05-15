@@ -4,7 +4,7 @@
   "version": "1.0",
   "description": "Extensión moderna para gestionar notas con sincronización en la nube y OCR.",
   "background": {
-    "service_worker": "js/background.js",
+    "scripts": ["js/background.js"],
     "type": "module"
   },
   "content_security_policy": {
@@ -18,16 +18,20 @@
       "128": "icons/icon-128.png"
     }
   },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "notas-pro@extension",
+      "strict_min_version": "109.0"
+    }
+  },
   "permissions": [
     "storage",
     "identity",
     "downloads",
-    "sidePanel",
     "activeTab",
     "scripting",
     "notifications",
-    "contextMenus",
-    "offscreen"
+    "contextMenus"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -39,16 +43,9 @@
       "all_frames": true
     }
   ],
-  "side_panel": {
-    "default_path": "popup.html"
-  },
-  "oauth2": {
-    "client_id": "262441099949-kf9fcfn7o5eg6tmq9c9gh82jjnhg9q1b.apps.googleusercontent.com",
-    "scopes": [
-      "https://www.googleapis.com/auth/userinfo.email",
-      "https://www.googleapis.com/auth/drive.appdata",
-      "https://www.googleapis.com/auth/userinfo.profile"
-    ]
+  "sidebar_action": {
+    "default_panel": "popup.html",
+    "default_title": "Notas Pro"
   },
   "icons": {
     "16": "icons/icon-16.png",
