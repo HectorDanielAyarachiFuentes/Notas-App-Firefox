@@ -31,14 +31,11 @@ const settingsDropdown = document.getElementById('settings-dropdown');
 const versionSpan = document.getElementById('extension-version');
 const themeSelector = document.getElementById('theme-selector');
 const psmSelector = document.getElementById('psm-selector');
-const exportBtn = document.getElementById('export-btn');
-const importBtn = document.getElementById('import-btn');
 const importFileInput = document.getElementById('import-file-input');
 const pinBtn = document.getElementById('pin-btn');
 const ocrBtn = document.getElementById('ocr-btn');
 
 // Local profile
-const localProfileIcon   = document.getElementById('local-profile-icon');
 const localProfileName   = document.getElementById('local-profile-name');
 const localNameInput     = document.getElementById('local-name-input');
 const editLocalNameBtn   = document.getElementById('edit-local-name-btn');
@@ -47,6 +44,8 @@ const emojiPicker        = document.getElementById('emoji-picker');
 const emojiGrid          = document.getElementById('emoji-grid');
 const localHeaderIcon    = document.getElementById('local-header-icon');
 const localHeaderName    = document.getElementById('local-header-name');
+const profileImgInput    = document.getElementById('profile-img-input');
+const uploadImgBtn       = document.getElementById('upload-profile-img-btn');
 
 let editingId = null;
 let statusTimeout = null;
@@ -435,12 +434,6 @@ const profileImportBtn = document.getElementById('profile-import-btn');
 if (profileExportBtn) profileExportBtn.addEventListener('click', exportNotes);
 if (profileImportBtn) profileImportBtn.addEventListener('click', () => importFileInput.click());
 
-exportBtn.addEventListener('click', exportNotes);
-
-importBtn.addEventListener('click', () => {
-  importFileInput.click();
-});
-
 importFileInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -536,10 +529,37 @@ async function initLocalProfile() {
 }
 
 function updateProfileUI() {
-  localProfileIcon.textContent = currentProfile.icon;
-  localProfileName.textContent = currentProfile.name;
-  localHeaderIcon.textContent = currentProfile.icon;
+  const profileCard = document.querySelector('.local-profile-card');
+  const renderIcon = (el, icon) => {
+    if (icon && icon.startsWith('data:image')) {
+      el.textContent = '';
+      const img = document.createElement('img');
+      img.src = icon;
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'contain';
+      img.style.display = 'block';
+      el.appendChild(img);
+    } else {
+      el.textContent = icon || '📝';
+    }
+  };
+  
+  // Renderizar en el header
+  renderIcon(localHeaderIcon, currentProfile.icon);
   localHeaderName.textContent = currentProfile.name;
+  localProfileName.textContent = currentProfile.name;
+
+  // Aplicar fondo a la tarjeta completa si es imagen
+  if (profileCard) {
+    if (currentProfile.icon && currentProfile.icon.startsWith('data:image')) {
+      profileCard.style.backgroundImage = `linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.85)), url(${currentProfile.icon})`;
+      profileCard.style.backgroundSize = 'cover';
+      profileCard.style.backgroundPosition = 'center';
+    } else {
+      profileCard.style.backgroundImage = '';
+    }
+  }
 }
 
 editLocalNameBtn.addEventListener('click', () => {
@@ -567,6 +587,53 @@ localIconTrigger.addEventListener('click', (e) => {
   const isHidden = emojiPicker.style.display === 'none';
   emojiPicker.style.display = isHidden ? 'block' : 'none';
 });
+
+if (uploadImgBtn && profileImgInput) {
+  uploadImgBtn.addEventListener('click', () => profileImgInput.click());
+
+  profileImgInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = async () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const size = 160; 
+        canvas.width = size;
+        canvas.height = size;
+
+        // Ajustar imagen completa (contain) en lugar de recortar
+        const aspect = img.width / img.height;
+        let dw = size;
+        let dh = size;
+        let dx = 0;
+        let dy = 0;
+
+        if (aspect > 1) {
+          dh = size / aspect;
+          dy = (size - dh) / 2;
+        } else {
+          dw = size * aspect;
+          dx = (size - dw) / 2;
+        }
+
+        ctx.drawImage(img, dx, dy, dw, dh);
+        const dataUrl = canvas.toDataURL('image/webp', 0.85);
+
+        currentProfile.icon = dataUrl;
+        await saveLocalProfile(currentProfile);
+        updateProfileUI();
+        emojiPicker.style.display = 'none';
+        status('Foto de perfil actualizada.', 'success');
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 document.addEventListener('click', (e) => {
   if (emojiPicker && !emojiPicker.contains(e.target) && !localIconTrigger.contains(e.target)) {

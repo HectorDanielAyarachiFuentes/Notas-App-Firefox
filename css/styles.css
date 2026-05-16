@@ -41,30 +41,14 @@ body {
   outline-color: var(--accent);
 }
 
-/* Custom Premium Scrollbar */
+/* Hide all scrollbars globally */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  border: 2px solid transparent;
-  background-clip: content-box;
-}
-
-.theme-dark ::-webkit-scrollbar-thumb, 
-:root.theme-system ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
-  background-clip: content-box;
+  display: none; /* Chrome/Safari/Opera */
 }
 
 body {
@@ -303,13 +287,11 @@ body.is-side-panel .header-actions {
   overflow-x: hidden;
 }
 
-/* Scrollbar ultra-fina para el menú de ajustes */
-.settings-menu::-webkit-scrollbar {
-  width: 4px;
+.settings-menu {
+  scrollbar-width: none;
 }
-.settings-menu::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 10px;
+.settings-menu::-webkit-scrollbar {
+  display: none;
 }
 
 .settings-header {
@@ -734,13 +716,11 @@ button:not(.tab-button):not(.btn-icon) {
   padding-right: 4px;
 }
 
-#notesList::-webkit-scrollbar {
-  width: 5px;
+#notesList {
+  scrollbar-width: none;
 }
-
-#notesList::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 10px;
+#notesList::-webkit-scrollbar {
+  display: none;
 }
 
 .noteItem {
@@ -979,31 +959,87 @@ body.is-side-panel .status.show {
    Local Profile Card
 ───────────────────────────────────────────── */
 .local-profile-card {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border-color);
+  gap: 32px;
+  background: linear-gradient(165deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-lg);
-  padding: 18px;
-  margin-bottom: 14px;
-  box-shadow: var(--shadow-sm);
-  animation: fadeIn 0.4s ease-out;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-image 0.8s ease;
+  cursor: pointer;
+}
+
+.local-profile-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 40px 80px -25px rgba(0, 0, 0, 0.7);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.local-profile-card::after {
+  content: '🛡️';
+  position: absolute;
+  right: -20px;
+  bottom: -20px;
+  font-size: 120px;
+  opacity: 0.05;
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
+
+.local-profile-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--success), var(--accent));
+  background-size: 200% 100%;
+  animation: aurora 5s linear infinite;
+  opacity: 0.8;
 }
 
 .local-icon-wrap {
   position: relative;
-  width: 58px;
-  height: 58px;
+  width: 90px;
+  height: 90px;
   flex-shrink: 0;
   cursor: pointer;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(67,97,238,0.12), rgba(72,149,239,0.08));
-  border: 2px solid var(--border-color);
+  border-radius: 28px;
+  background: #0f172a;
+  border: 3px solid var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+  overflow: hidden;
+  z-index: 2;
+}
+
+.local-icon-wrap:hover {
+  transform: scale(1.08) rotate(-3deg);
+  box-shadow: 0 0 30px var(--accent-glow);
+  border-color: var(--accent-light);
+}
+
+.local-icon-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+  transform: translateX(-100%);
+  transition: 0.6s;
+}
+
+.local-icon-wrap:hover::after {
+  transform: translateX(100%);
 }
 
 .local-icon-wrap:hover {
@@ -1021,18 +1057,26 @@ body.is-side-panel .status.show {
 
 .local-icon-edit-badge {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
+  bottom: -2px;
+  right: -2px;
+  width: 30px;
+  height: 30px;
+  border-radius: 12px;
   background: var(--accent);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--bg-solid);
+  border: 3px solid #0f172a;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.local-icon-wrap:hover .local-icon-edit-badge {
+  transform: scale(1.1) rotate(15deg);
+  background: var(--accent-light);
+  box-shadow: 0 0 15px var(--accent-glow);
 }
 
 .local-profile-info {
@@ -1050,13 +1094,15 @@ body.is-side-panel .status.show {
 }
 
 .local-profile-name {
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.3px;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -1.5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 150px;
+  max-width: 220px;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
 .btn-icon-xs {
@@ -1106,12 +1152,19 @@ body.is-side-panel .status.show {
   align-items: center;
   gap: 8px;
   background: rgba(16, 185, 129, 0.1);
-  padding: 8px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  margin-top: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  margin-top: 8px;
   animation: fadeIn 0.6s ease-out;
   width: fit-content;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.1);
+  backdrop-filter: blur(4px);
+}
+
+.persistence-badge:hover {
+  background: rgba(16, 185, 129, 0.2);
+  transform: translateY(-1px);
 }
 
 .persistence-badge svg {
@@ -1132,14 +1185,22 @@ body.is-side-panel .status.show {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: rgba(16, 185, 129, 0.08);
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
   border: 1px solid rgba(16, 185, 129, 0.2);
-  border-radius: var(--radius-md);
-  padding: 14px;
+  border-radius: 18px;
+  padding: 18px;
   font-size: 12px;
   color: var(--text-muted);
-  line-height: 1.5;
+  line-height: 1.6;
   animation: fadeIn 0.8s ease-out;
+  box-shadow: 0 10px 20px -10px rgba(16, 185, 129, 0.2);
+}
+
+.local-info-box strong {
+  color: var(--success);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .local-info-box svg {
@@ -1148,7 +1209,39 @@ body.is-side-panel .status.show {
   margin-top: 2px;
 }
 
-/* Header icon en modo local — mismo estilo que #user-avatar */
+.status-dot.local-dot {
+  background: var(--success);
+  box-shadow: 0 0 10px var(--success);
+  animation: pulse-success 2s infinite;
+}
+
+@keyframes pulse-success {
+  0%   { transform: scale(1); opacity: 1; box-shadow: 0 0 0px var(--success); }
+  50%  { transform: scale(1.4); opacity: 0.6; box-shadow: 0 0 10px var(--success); }
+  100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0px var(--success); }
+}
+
+/* Tab Profile specialized buttons */
+#tab-sync .secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#tab-sync .secondary:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -10px var(--accent-glow);
+}
+
+#tab-sync .secondary:active {
+  transform: translateY(0);
+}
 .local-header-icon {
   font-size: 20px;
   width: 42px;
@@ -1164,6 +1257,7 @@ body.is-side-panel .status.show {
   flex-shrink: 0;
   line-height: 1;
   user-select: none;
+  overflow: hidden;
 }
 
 /* Nombre del perfil local — mismo estilo que #user-name */
@@ -1204,19 +1298,11 @@ body.is-side-panel .status.show {
   overflow-y: auto;
 }
 
-/* Scrollbar personalizada para el selector de iconos */
+.emoji-picker {
+  scrollbar-width: none;
+}
 .emoji-picker::-webkit-scrollbar {
-  width: 6px;
-}
-.emoji-picker::-webkit-scrollbar-track {
-  background: transparent;
-}
-.emoji-picker::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 10px;
-}
-.emoji-picker::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
+  display: none;
 }
 
 .emoji-picker-label {
