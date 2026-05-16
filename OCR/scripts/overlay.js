@@ -94,13 +94,6 @@ window.browser = (function () {
 	var TextOverlay = function () {
 		var _overlay;
 		var $container = document.querySelector('.ocrext-textoverlay-container');
-		var htmlString = `
-			<div class="ocrext-element ocrext-text-overlay">
-				<div class="ocrext-element ocrext-text-overlay-word-wrapper">
-					<img class="ocrext-element ocrext-text-overlay-img text-overlay-img" />
-				</div>
-			</div>`;
-		
 		var _overlayInstance;
 
 		var _isOverlayAvailable = function () {
@@ -112,7 +105,19 @@ window.browser = (function () {
 				const oldOverlay = $container.querySelector('.ocrext-text-overlay');
 				if (oldOverlay) oldOverlay.remove();
 				
-				$container.insertAdjacentHTML('beforeend', htmlString);
+				// Creación segura de elementos DOM (sin usar innerHTML o insertAdjacentHTML)
+				const overlay = document.createElement('div');
+				overlay.className = 'ocrext-element ocrext-text-overlay';
+				
+				const wrapper = document.createElement('div');
+				wrapper.className = 'ocrext-element ocrext-text-overlay-word-wrapper';
+				
+				const img = document.createElement('img');
+				img.className = 'ocrext-element ocrext-text-overlay-img text-overlay-img';
+				
+				wrapper.appendChild(img);
+				overlay.appendChild(wrapper);
+				$container.appendChild(overlay);
 				
 				$container.addEventListener('click', (e) => {
 					if (e.target.closest('.ocrext-close-link')) _overlayInstance.hide();
