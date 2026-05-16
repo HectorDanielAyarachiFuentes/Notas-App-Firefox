@@ -4,57 +4,74 @@ window.browser = (function () {
 		window.chrome;
 })();
 
-//let isFirefox = typeof InstallTrigger !== 'undefined';
 (function () {
 	'use strict';
+	
+	const fadeEffect = (el, type, duration = 300) => {
+		if (!el) return;
+		el.style.transition = `opacity ${duration}ms ease`;
+		if (type === 'in') {
+			el.style.display = 'block';
+			setTimeout(() => el.style.opacity = 1, 10);
+		} else {
+			el.style.opacity = 0;
+			setTimeout(() => el.style.display = 'none', duration);
+		}
+	};
+
 	const htmlDialog = function () {
 		const allMethod = {
 			init: function () {
 				let self = this;
-				$('body').off('click', '[popup-close]');
-				$('body').off('click', '.cp-dialog-close-button,.cp-dialog-popup');
-				$('body').on('click', '[popup-close]', function () {
-					var popup_name = $(this).attr('popup-close');
-					$('[popup-name="' + popup_name + '"]').fadeOut(300);
-				});
-				// Close Popup When Click Outside
-				$('body').on('click', '.cp-dialog-close-button', function () {
-					var popup_name = $(this).find('[popup-close]').attr('popup-close');
-					$('[popup-name="' + popup_name + '"]').fadeOut(300);
-					$(this).children().click(function () {
-						return false;
-					});
-				});
-				$(document).on('keyup', function (e) {
-					if (e.keyCode === 27) {
-						self.closeDialog();
+				const body = document.body;
+				
+				body.addEventListener('click', (e) => {
+					const closeBtn = e.target.closest('[popup-close]');
+					if (closeBtn) {
+						const popupName = closeBtn.getAttribute('popup-close');
+						const popup = document.querySelector(`[popup-name="${popupName}"]`);
+						fadeEffect(popup, 'out');
+					}
+					
+					const dialogClose = e.target.closest('.cp-dialog-close-button');
+					if (dialogClose) {
+						const popupName = dialogClose.querySelector('[popup-close]')?.getAttribute('popup-close');
+						const popup = document.querySelector(`[popup-name="${popupName}"]`);
+						fadeEffect(popup, 'out');
 					}
 				});
-				$('body').attr('data-ocrext-dialog',1);
+
+				document.addEventListener('keyup', (e) => {
+					if (e.keyCode === 27) self.closeDialog();
+				});
+				
+				body.setAttribute('data-ocrext-dialog', '1');
 			},
 			closeDialog: function(){
-				$('#cfish-popup-message-dialog').fadeOut(300);
-				let isfounfLocalocr = $("#OcrLocal").attr('LocalOcrFound');
-				if ($("#OcrLocal").prop('checked') && isfounfLocalocr == 'NO') {
-					$('#OcrSpace').click()
+				const dialog = document.getElementById('cfish-popup-message-dialog');
+				fadeEffect(dialog, 'out');
+				
+				const ocrLocal = document.getElementById('OcrLocal');
+				const isFoundLocal = ocrLocal?.getAttribute('LocalOcrFound');
+				if (ocrLocal?.checked && isFoundLocal === 'NO') {
+					document.getElementById('OcrSpace')?.click();
 				}
 			},
-			hardClose:function(){
-				$('#cfish-popup-message-dialog').hide();
+			hardClose: function(){
+				const dialog = document.getElementById('cfish-popup-message-dialog');
+				if (dialog) dialog.style.display = 'none';
 			},
-			showDialog: function (header,message, buttons) {
+			showDialog: function (header, message, buttons) {
+				document.getElementById('cp-dialog-title').textContent = header;
+				document.getElementById('cp-dialog-description').textContent = message;
+				document.getElementById('cp-dialog-image').src = browser.runtime.getURL("images/copyfish-32.png");
 
-				$('#cp-dialog-title').text('');
-				$('#cp-dialog-description').text('');
-				$('#cp-dialog-image').attr('src', browser.runtime.getURL("images/copyfish-32.png"));
-				$('#cp-dialog-title').text(header);
-				$('#cp-dialog-description').text(message);
-
+				const desc = document.getElementById('cp-dialog-description');
 				if (buttons && buttons.length) {
 					const buttonRow = document.createElement('div');
 					buttonRow.className = 'button-row ' + (buttons.length === 1 ? 'btn-center' : '');
 					
-					buttons.forEach((single, i) => {
+					buttons.forEach((single) => {
 						const { label = '', cb = () => { } } = single;
 						const span = document.createElement('span');
 						const button = document.createElement('button');
@@ -64,60 +81,47 @@ window.browser = (function () {
 						span.appendChild(button);
 						buttonRow.appendChild(span);
 					});
-					$('#cp-dialog-description').append(buttonRow);
+					desc.appendChild(buttonRow);
 				}
-				$('[popup-name="popup-1"]').fadeIn(300);
+				
+				const popup = document.querySelector('[popup-name="popup-1"]');
+				fadeEffect(popup, 'in');
 			},
 		}
-
 		return allMethod;
 	};
 
 	var TextOverlay = function () {
 		var _overlay;
-		var $container;
-		var htmlString;
-		var wordString;
-		var $overlay;
+		var $container = document.querySelector('.ocrext-textoverlay-container');
+		var htmlString = `
+			<div class="ocrext-element ocrext-text-overlay">
+				<div class="ocrext-element ocrext-text-overlay-word-wrapper">
+					<img class="ocrext-element ocrext-text-overlay-img text-overlay-img" />
+				</div>
+			</div>`;
+		
 		var _overlayInstance;
-		var _init;
-
-
 
 		var _isOverlayAvailable = function () {
 			return !!_overlay && _overlay.HasOverlay;
 		};
-		$container = $('.ocrext-textoverlay-container');
 
-		htmlString = [
-			'<div class="ocrext-element ocrext-text-overlay">',
-			'<div class="ocrext-element ocrext-text-overlay-word-wrapper">',
-			'<img class="ocrext-element ocrext-text-overlay-img text-overlay-img" />',
-			'</div>',
-			'</div>'
-		].join('');
-		wordString = '<span class="ocrext-element ocrext-text-overlay-word"></span>';
-
-		_init = function (self) {
-			var run;
-			// $('title,.title').text(browser.i18n.getMessage('appName') + ' - ' + browser.i18n.getMessage('overlayTab'));
-			// `self` is passed; pythonic!
-			if($container && $container.length){
-				// reset if already available
-				$container.find('.ocrext-text-overlay').remove();
+		var _init = function () {
+			if ($container) {
+				const oldOverlay = $container.querySelector('.ocrext-text-overlay');
+				if (oldOverlay) oldOverlay.remove();
+				
+				$container.insertAdjacentHTML('beforeend', htmlString);
+				
+				$container.addEventListener('click', (e) => {
+					if (e.target.closest('.ocrext-close-link')) _overlayInstance.hide();
+				});
 			}
-			$(htmlString).appendTo($container);
-			$overlay = $('.ocrext-textoverlay-container')
-
-			$container.on('click', '.ocrext-close-link', function () {
-				_overlayInstance.hide();
-			});
 		};
 
 		_overlayInstance = {
-
 			setOverlayInformation: function (overlayInfo, canvasWidth, canHeight, imgDataURI, zoom) {
-				// if setOverlayInformation is called when _overlay is already set, do nothing!
 				if (!_overlay) {
 					_overlay = overlayInfo;
 					this.render(canvasWidth, canHeight, imgDataURI, zoom);
@@ -129,131 +133,104 @@ window.browser = (function () {
 			},
 			render: function (canvasWidth, canvasHeight, imgDataURI, zoom) {
 				zoom = zoom || 1;
-				if (_isOverlayAvailable()) {
-					var lines = _overlay.Lines;
-					var $wordWrapper = $overlay.find('.ocrext-text-overlay-word-wrapper');
-					var $word;
+				if (_isOverlayAvailable() && $container) {
+					const lines = _overlay.Lines;
+					const wordWrapper = $container.querySelector('.ocrext-text-overlay-word-wrapper');
+					
 					if (imgDataURI) {
-						$container.find('.text-overlay-img').attr('src', imgDataURI);
+						$container.querySelector('.text-overlay-img').src = imgDataURI;
 					}
 
 					this.setDimensions(canvasWidth, canvasHeight);
-					$.each(lines, function (i, line) {
-						var maxLineHeight = line.MaxHeight * zoom;
-						var minLineTopDist = line.MinTop * zoom;
-						$.each(line.Words, function (j, word) {
-							$word = $(wordString);
-							$word
-								.text(word.WordText)
-								.css({
-									left: word.Left * zoom,
-									top: minLineTopDist,
-									height: maxLineHeight,
-									width: word.Width * zoom,
-									fontSize: maxLineHeight * 0.7
-								})
-								.appendTo($wordWrapper);
-							$word = null;
+					
+					lines.forEach(line => {
+						const maxLineHeight = line.MaxHeight * zoom;
+						const minLineTopDist = line.MinTop * zoom;
+						
+						line.Words.forEach(word => {
+							const span = document.createElement('span');
+							span.className = 'ocrext-element ocrext-text-overlay-word';
+							span.textContent = word.WordText;
+							Object.assign(span.style, {
+								left: (word.Left * zoom) + 'px',
+								top: minLineTopDist + 'px',
+								height: maxLineHeight + 'px',
+								width: (word.Width * zoom) + 'px',
+								fontSize: (maxLineHeight * 0.7) + 'px',
+								position: 'absolute'
+							});
+							wordWrapper.appendChild(span);
 						});
-
 					});
 				}
 				return this;
 			},
-
 			setDimensions: function (width, height) {
-
-				$.each([$overlay, $overlay.find('.ocrext-text-overlay-word-wrapper')], function () {
-					this.width(width).height(height);
-				});
-
-				return this;
-			},
-
-			reset: function () {
-				_overlay = null;
-				$overlay.find('.ocrext-text-overlay-word-wrapper span').remove();
-				return this;
-			},
-
-			show: function () {
-				if (_isOverlayAvailable()) {
-					// this.position();
-					$container.addClass('visible');
-					$overlay.addClass('visible');
-					$container.find('.ocrext-text-overlay').addClass('visible');
-
-				} else {
-					// logError('Overlay is unavailable.');
-					// window.alert('Sorry. Text overlay is currently unavailable.');
+				if ($container) {
+					const targets = [$container.querySelector('.ocrext-text-overlay'), $container.querySelector('.ocrext-text-overlay-word-wrapper')];
+					targets.forEach(el => {
+						if (el) {
+							el.style.width = width + 'px';
+							el.style.height = height + 'px';
+						}
+					});
 				}
 				return this;
 			},
-
+			reset: function () {
+				_overlay = null;
+				if ($container) {
+					$container.querySelectorAll('.ocrext-text-overlay-word-wrapper span').forEach(s => s.remove());
+				}
+				return this;
+			},
+			show: function () {
+				if (_isOverlayAvailable() && $container) {
+					$container.classList.add('visible');
+					const overlay = $container.querySelector('.ocrext-text-overlay');
+					if (overlay) overlay.classList.add('visible');
+				}
+				return this;
+			},
 			hide: function () {
-				$container.removeClass('visible');
-				$overlay.removeClass('visible');
-				$container.find('.ocrext-text-overlay').remove('visible');
+				if ($container) {
+					$container.classList.remove('visible');
+					const overlay = $container.querySelector('.ocrext-text-overlay');
+					if (overlay) overlay.classList.remove('visible');
+				}
 				return this;
 			},
-
-			position: function () {
-				var bodyWidth, bodyHeight;
-				var $body = $('body');
-				bodyWidth = $body.width();
-				bodyHeight = $(window).height();
-				$overlay.css({
-					left: bodyWidth / 2 - $overlay.width() / 2,
-					top: 150
-				});
-				return this;
-			},
-
 			setTitle: function () {
-				$('title,.ocrext-textoverlay-title').text(browser.i18n.getMessage('overlayTab'));
+				const title = document.querySelector('title, .ocrext-textoverlay-title');
+				if (title) title.textContent = browser.i18n.getMessage('overlayTab');
 				return this;
 			},
-
 			listenToBackgroundEvents: function () {
-				var self = this;
-				browser.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-
-					console.log(request.evt, 8789)
-
-					if (sender.tab) {
-						return true;
-					}
-					
+				browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+					if (sender.tab) return true;
 					if (request.evt === 'init-overlay-tab') {
-						self.setOverlayInformation(request.overlayInfo, request.canWidth, request.canHeight, request.imgDataURI, request.zoom);
-						// self.position();
-						self.show();
-						sendResponse({
-							farewell: 'init-overlay-tab:OK'
-						});
+						this.setOverlayInformation(request.overlayInfo, request.canWidth, request.canHeight, request.imgDataURI, request.zoom);
+						this.show();
+						sendResponse({ farewell: 'init-overlay-tab:OK' });
 						return true;
 					}
 				});
 			}
-
 		};
-		_init(_overlayInstance);
+		_init();
 		return _overlayInstance;
 	};
 
-	// future proofing
-	var run = $('body').attr('data-ocrext-run');
-	var textOverlay;
-	if (run) {
-		textOverlay = TextOverlay();
+	const body = document.body;
+	if (body.getAttribute('data-ocrext-run')) {
+		const textOverlay = TextOverlay();
 		textOverlay.listenToBackgroundEvents();
 		textOverlay.setTitle();
 	}
-	if(!$('body').attr('data-ocrext-dialog')){
+	if (!body.getAttribute('data-ocrext-dialog')) {
 		window.__copyFishHtmlDialog__ = htmlDialog();
 		window.__copyFishHtmlDialog__.init();
 	}
 
 	window.__TextOverlay__ = TextOverlay;
-	
 }());
