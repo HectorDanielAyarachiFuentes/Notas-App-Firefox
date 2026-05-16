@@ -434,41 +434,43 @@ const profileImportBtn = document.getElementById('profile-import-btn');
 if (profileExportBtn) profileExportBtn.addEventListener('click', exportNotes);
 if (profileImportBtn) profileImportBtn.addEventListener('click', () => importFileInput.click());
 
-importFileInput.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+if (importFileInput) {
+  importFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = async (event) => {
-    try {
-      const importedNotes = JSON.parse(event.target.result);
-      if (!Array.isArray(importedNotes)) {
-        throw new Error('El archivo no contiene un array de notas válido.');
-      }
-
-      const localNotes = await getNotes();
-      const notesMap = new Map();
-
-      [...localNotes, ...importedNotes].forEach(note => {
-        if (!note.id || !note.updatedAt) return; 
-        const existing = notesMap.get(note.id);
-        if (!existing || note.updatedAt > existing.updatedAt) {
-          notesMap.set(note.id, note);
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const importedNotes = JSON.parse(event.target.result);
+        if (!Array.isArray(importedNotes)) {
+          throw new Error('El archivo no contiene un array de notas válido.');
         }
-      });
 
-      const mergedNotes = Array.from(notesMap.values());
-      await saveNotes(mergedNotes);
-      await renderNotes();
-      status(`${importedNotes.length} notas importadas y fusionadas.`, 'success');
-      switchTab('history');
+        const localNotes = await getNotes();
+        const notesMap = new Map();
 
-    } catch (error) {
-      status(`Error al importar: ${error.message}`, 'danger', 5000);
-    }
-  };
-  reader.readAsText(file);
-});
+        [...localNotes, ...importedNotes].forEach(note => {
+          if (!note.id || !note.updatedAt) return; 
+          const existing = notesMap.get(note.id);
+          if (!existing || note.updatedAt > existing.updatedAt) {
+            notesMap.set(note.id, note);
+          }
+        });
+
+        const mergedNotes = Array.from(notesMap.values());
+        await saveNotes(mergedNotes);
+        await renderNotes();
+        status(`${importedNotes.length} notas importadas y fusionadas.`, 'success');
+        switchTab('history');
+
+      } catch (error) {
+        status(`Error al importar: ${error.message}`, 'danger', 5000);
+      }
+    };
+    reader.readAsText(file);
+  });
+}
 
 // --- OCR y Extras ---
 if (ocrBtn) {
@@ -486,11 +488,18 @@ if (ocrBtn) {
       if (container) container.classList.add('ocr-processing');
       status('Iniciando escáner...', 'info');
 
-      browserAPI.runtime.sendMessage({ action: 'performBackgroundOCR', tab });
+      const response = await browserAPI.runtime.sendMessage({ action: 'performBackgroundOCR', tab });
       
-      setTimeout(() => window.close(), 600);
+      if (response && !response.success) {
+        status('Error: ' + response.error, 'danger', 5000);
+        if (container) container.classList.remove('ocr-processing');
+      } else {
+        setTimeout(() => window.close(), 2000);
+      }
     } catch (e) {
-      status('Error: ' + e.message, 'danger');
+      status('Error: ' + e.message, 'danger', 5000);
+      const container = document.querySelector('.container');
+      if (container) container.classList.remove('ocr-processing');
     }
   });
 }

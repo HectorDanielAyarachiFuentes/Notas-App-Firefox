@@ -30,10 +30,10 @@ async function getOrCreateWorker(targetLang, isBestMode) {
         
         console.log(`Offscreen: Iniciando Worker Local v7 (${lang}, Best: ${useBest}, Intento: ${attempts + 1})`);
         
-        // Rutas relativas desde offscreen.html (ubicado en /OCR/)
-        const workerPath = 'scripts/worker.min.js';
-        const corePath = 'scripts/tesseract-core-simd.wasm.js';
-        const langPath = useBest ? 'tessdata_best/' : 'tessdata/';
+        // Rutas absolutas para Firefox/Chrome
+        const workerPath = chrome.runtime.getURL('OCR/scripts/worker.min.js');
+        const corePath = chrome.runtime.getURL('OCR/scripts/tesseract-core-simd.wasm.js');
+        const langPath = chrome.runtime.getURL(useBest ? 'OCR/tessdata_best/' : 'OCR/tessdata/');
 
         // Inicialización nativa v7 (más rápida y eficiente)
         const worker = await Tesseract.createWorker(lang, useBest ? 1 : 3, {

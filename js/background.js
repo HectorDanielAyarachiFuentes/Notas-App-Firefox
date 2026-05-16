@@ -50,9 +50,9 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.evt === '_bootStrapResources') {
     (async () => {
       try {
-        const configRes = await fetch(chrome.runtime.getURL('OCR/config/config.json'));
+        const configRes = await fetch(browserAPI.runtime.getURL('OCR/config/config.json'));
         const config = await configRes.text();
-        const htmlRes = await fetch(chrome.runtime.getURL('OCR/dialog.html'));
+        const htmlRes = await fetch(browserAPI.runtime.getURL('OCR/dialog.html'));
         const htmlStr = await htmlRes.text();
         sendResponse({ config, htmlStr });
       } catch (e) {
@@ -66,7 +66,7 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.evt === '_bootStrapMessageDialog') {
     (async () => {
       try {
-        const htmlRes = await fetch(chrome.runtime.getURL('OCR/message-dialog.html'));
+        const htmlRes = await fetch(browserAPI.runtime.getURL('OCR/message-dialog.html'));
         const htmlStr = await htmlRes.text();
         sendResponse({ htmlStr });
       } catch (e) {
@@ -78,14 +78,14 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.evt === 'capture-screen') {
-    chrome.tabs.captureVisibleTab(null, { format: 'jpeg', quality: 70 }, (dataURL) => {
-      if (chrome.runtime.lastError) {
-        console.warn('Error en captureVisibleTab:', chrome.runtime.lastError.message);
-        sendResponse({ error: chrome.runtime.lastError.message });
+    browserAPI.tabs.captureVisibleTab(null, { format: 'jpeg', quality: 70 }, (dataURL) => {
+      if (browserAPI.runtime.lastError) {
+        console.warn('Error en captureVisibleTab:', browserAPI.runtime.lastError.message);
+        sendResponse({ error: browserAPI.runtime.lastError.message });
         return;
       }
-      chrome.tabs.getZoom(sender.tab.id, (zf) => {
-        if (chrome.runtime.lastError) {
+      browserAPI.tabs.getZoom(sender.tab.id, (zf) => {
+        if (browserAPI.runtime.lastError) {
           sendResponse({ dataURL, zf: 1 });
         } else {
           sendResponse({ dataURL, zf });
@@ -114,13 +114,13 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.evt === 'get-best-server') {
     (async () => {
       try {
-        const configRes = await fetch(chrome.runtime.getURL('OCR/config/config.json'));
+        const configRes = await fetch(browserAPI.runtime.getURL('OCR/config/config.json'));
         const config = await configRes.json();
-        const server = config.ocr_api_list[0]; // Por ahora devolvemos el primero
+        const server = config.ocr_api_list[0]; 
         sendResponse({ server: server });
       } catch (e) {
         console.error('Error en get-best-server:', e);
-        sendResponse({ server: { id: "1" } }); // Fallback
+        sendResponse({ server: { id: "1" } }); 
       }
     })();
     return true;
@@ -136,10 +136,10 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
     (async () => {
       try {
         await setupOffscreenDocument();
-        const opts = await chrome.storage.sync.get(['psmMode']);
+        const opts = await browserAPI.storage.sync.get(['psmMode']);
         const psmMode = opts.psmMode || 'auto';
 
-        const response = await chrome.runtime.sendMessage({
+        const response = await browserAPI.runtime.sendMessage({
           evt: 'performLocalOCR',
           ocrLang: message.ocrLang,
           imagepath: message.imagepath,
@@ -156,19 +156,19 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
 	if (message.evt === 'open-window') {
-		chrome.tabs.create({ url: message.url });
+		browserAPI.tabs.create({ url: message.url });
 		sendResponse({ success: true });
 		return true;
 	}
 
 	if (message.evt === 'open-settings') {
-		chrome.tabs.create({ url: chrome.runtime.getURL('popup.html?view=settings') });
+		browserAPI.tabs.create({ url: browserAPI.runtime.getURL('popup.html?view=settings') });
 		sendResponse({ success: true });
 		return true;
 	}
 
 	if (message.evt === 'open-app') {
-		chrome.tabs.create({ url: chrome.runtime.getURL('popup.html') });
+		browserAPI.tabs.create({ url: browserAPI.runtime.getURL('popup.html') });
 		sendResponse({ success: true });
 		return true;
 	}
@@ -225,25 +225,36 @@ async function handleBackgroundOCR(tab) {
   isProcessingOCR = true;
 
   try {
-    // Verificar disponibilidad del tab
+    const tabId = tab.id;
+    console.log(`[OCR] Iniciando para tab: ${tabId}`);
+
+    // 1. Verificar si podemos inyectar
     try {
-      await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: () => true });
+      await browserAPI.scripting.executeScript({ 
+        target: { tabId }, 
+        func: () => { console.log("[OCR] Heartbeat test"); return true; } 
+      });
     } catch (e) {
       isProcessingOCR = false;
-      throw new Error('No se puede acceder a esta página por restricciones del navegador (ej. páginas internas de Chrome).');
+      return { success: false, error: 'No se puede inyectar en esta página (restringida o protegida).' };
     }
 
-    // Verificar si los scripts OCR ya están inyectados en esta pestaña
-    const [checkResult] = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: () => typeof window.__ocrScriptsLoaded !== 'undefined'
-    });
-    const alreadyInjected = checkResult && checkResult.result;
+    // 2. Verificar estado de inyección
+    let alreadyInjected = false;
+    try {
+      const [check] = await browserAPI.scripting.executeScript({
+        target: { tabId },
+        func: () => typeof window.__ocrScriptsLoaded !== 'undefined'
+      });
+      alreadyInjected = check && check.result;
+    } catch (e) {
+      console.warn("[OCR] Error al verificar inyección:", e);
+    }
 
     if (!alreadyInjected) {
-      // Inyectar polyfill y dependencias solo si no están ya cargadas
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
+      console.log("[OCR] Inyectando scripts...");
+      await browserAPI.scripting.executeScript({
+        target: { tabId },
         files: [
           'OCR/scripts/crossbrowser.js',
           'OCR/scripts/jquery.min.js',
@@ -253,64 +264,69 @@ async function handleBackgroundOCR(tab) {
         ]
       });
 
-      await chrome.scripting.insertCSS({
-        target: { tabId: tab.id },
-        files: [
-          'OCR/styles/cs.css'
-        ]
+      await browserAPI.scripting.insertCSS({
+        target: { tabId },
+        files: ['OCR/styles/cs.css']
       });
 
-      // Marcar que los scripts ya fueron inyectados
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
+      await browserAPI.scripting.executeScript({
+        target: { tabId },
         func: () => { window.__ocrScriptsLoaded = true; }
       });
-
-      // Esperar un momento para la inicialización de los scripts
-      await new Promise(r => setTimeout(r, 400));
+      
+      // Esperar a que el script se inicialice internamente (bootStrapResources)
+      await new Promise(r => setTimeout(r, 800));
     }
 
-    // Activar selección
-    chrome.tabs.sendMessage(tab.id, { evt: 'enableselection' });
-    
-    // TÁCTICA NINJA DE PRECARGA FANTASMA:
-    // Mientras el usuario arrastra el ratón para recortar (lo que toma 1-3 segundos),
-    // levantamos el offscreen document en segundo plano y pre-cargamos el worker OCR de Tesseract.
-    // Para cuando el usuario suelte el click, el OCR ya estará 100% listo en memoria.
+    // 3. Enviar mensaje con reintentos (Heartbeat)
+    let success = false;
+    for (let i = 0; i < 5; i++) {
+      try {
+        console.log(`[OCR] Intentando activar selección (intento ${i+1})...`);
+        const response = await browserAPI.tabs.sendMessage(tabId, { evt: 'enableselection' });
+        if (response && response.farewell.includes('OK')) {
+          success = true;
+          break;
+        }
+      } catch (e) {
+        await new Promise(r => setTimeout(r, 300));
+      }
+    }
+
+    if (!success) {
+      throw new Error('No se pudo establecer comunicación con el script de OCR. Por favor, recarga la página.');
+    }
+
+    // 4. Precarga silenciosa
     setupOffscreenDocument().then(() => {
-      chrome.storage.sync.get(['visualCopyOCRLang', 'ocrEngine'], (opts) => {
+      browserAPI.storage.sync.get(['visualCopyOCRLang', 'ocrEngine'], (opts) => {
         const lang = opts.visualCopyOCRLang || 'spa';
         const bestMode = opts.ocrEngine === 'OcrLocalBest';
-        chrome.runtime.sendMessage({ 
-          evt: 'preloadLocalOCR', 
-          ocrLang: lang,
-          bestMode: bestMode 
-        }).catch(() => {});
+        browserAPI.runtime.sendMessage({ evt: 'preloadLocalOCR', ocrLang: lang, bestMode }).catch(() => {});
       });
-    }).catch(e => console.warn("Error en precarga silenciosa:", e));
+    }).catch(e => console.warn("[OCR] Precarga fallida:", e));
 
-    // Seguridad: Resetear flag después de un tiempo razonable si algo falla
-    setTimeout(() => { isProcessingOCR = false; }, 10000);
-
+    setTimeout(() => { isProcessingOCR = false; }, 15000);
     return { success: true };
 
   } catch (error) {
+    console.error("[OCR] Error fatal:", error);
     isProcessingOCR = false;
     return { success: false, error: error.message };
   }
 }
 
-let creating; // A global promise to avoid race conditions
+let creating; 
 async function setupOffscreenDocument() {
   // En Firefox, usamos un iframe oculto en el background page como alternativa a offscreen
-  if (!chrome.offscreen) {
+  if (!browserAPI.offscreen) {
     if (document.getElementById('ocr-bridge-iframe')) return;
     
     console.log('Firefox detected: Creating OCR bridge iframe...');
     return new Promise((resolve) => {
       const iframe = document.createElement('iframe');
       iframe.id = 'ocr-bridge-iframe';
-      iframe.src = chrome.runtime.getURL('OCR/offscreen.html');
+      iframe.src = browserAPI.runtime.getURL('OCR/offscreen.html');
       iframe.style.display = 'none';
       iframe.onload = () => {
         console.log('OCR bridge iframe loaded.');
@@ -321,7 +337,7 @@ async function setupOffscreenDocument() {
   }
 
   const path = 'OCR/offscreen.html';
-  const offscreen = chrome['offscreen'];
+  const offscreen = browserAPI.offscreen;
   
   if (offscreen && typeof offscreen.hasDocument === 'function') {
     if (await offscreen.hasDocument()) return;
