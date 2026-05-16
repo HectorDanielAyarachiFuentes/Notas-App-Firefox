@@ -107,10 +107,57 @@ body.is-side-panel .sidebar-nav {
   background: var(--surface);
   border-left: 1px solid var(--border-color);
   padding: 20px 8px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   gap: 24px;
   z-index: 10;
+}
+
+.app-info-sidebar {
+  margin-top: auto;
+  display: none; /* Oculto en vista popup normal para no saturar */
+}
+
+body.is-side-panel .app-info-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.25;
+  transition: all 0.3s ease;
+  padding-bottom: 10px;
+  user-select: none;
+  cursor: default;
+}
+
+body.is-side-panel .app-info-sidebar:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
+}
+
+.app-info-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.app-info-name {
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.app-info-version {
+  font-size: 8px;
+  font-weight: 800;
+  color: var(--accent-light);
+  opacity: 0.9;
 }
 
 body.is-side-panel .tab-content {
