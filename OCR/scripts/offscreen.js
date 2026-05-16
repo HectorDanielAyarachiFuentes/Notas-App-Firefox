@@ -270,42 +270,40 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             finalOutput = lines[0] + '\n' + sep + '\n' + lines.slice(1).join('\n');
           }
         } else {
-          // MODO FLUJO: Bloques y Párrafos (Mantiene estructura de columnas)
+          // MODO PRESERVACIÓN (NUEVO): Mantiene saltos de línea y detecta sangrías/columnas
           const blocks = data.blocks || [];
           for (const block of blocks) {
-            let blockText = '';
             for (const para of block.paragraphs || []) {
-              let paraText = '';
               for (const line of para.lines || []) {
                 const cleanedLine = cleanAndFormatWords(line.words);
                 if (cleanedLine) {
-                  if (paraText.endsWith('-')) paraText = paraText.slice(0, -1) + cleanedLine;
-                  else paraText += (paraText ? ' ' : '') + cleanedLine;
+                  // Detectar si es una lista (punto, guión, número)
+                  const isList = /^[•\-\*]|\d+\./.test(cleanedLine.trim());
+                  finalOutput += (isList ? '  ' : '') + cleanedLine + '\n';
                 }
               }
-              if (paraText) blockText += (blockText ? '\n\n' : '') + paraText;
+              finalOutput += '\n'; // Salto entre párrafos
             }
-            if (blockText) finalOutput += (finalOutput ? '\n\n' : '') + blockText;
           }
         }
 
-        // ── Paso 6: Correcciones gramaticales y limpieza final ──
+        // ── Paso 6: Correcciones gramaticales y limpieza suave ──
         let formattedText = finalOutput.trim().split('\n').map(line => {
-          let text = line.trim();
-          if (!text || text.startsWith('|')) return text;
-          text = text.replace(/^[\x22\u201c\u201d\u201e\u201f\u2018\u2019\u00ab\u00bb"""''`´]+\s*/, '');
-          text = text.replace(/^[a-zA-Z]{1,3}\s*[.,;:]\s+/g, '');
-          text = text.replace(/\s+[|\\\/]$/, '');
-          text = text.replace(/(\w)[''`´'](\w)/g, '$1 $2');
-          return text.replace(/  +/g, ' ');
+          let text = line; // Mantener espacios iniciales si los hay
+          if (!text.trim() || text.trim().startsWith('|')) return text;
+          
+          // Limpieza suave: solo errores comunes de OCR en los bordes
+          text = text.replace(/\s+[|\\\/]$/, ''); 
+          text = text.replace(/(\w)[''`´'](\w)/g, '$1$2'); // Corregir apóstrofes falsos
+          return text;
         }).join('\n');
 
         formattedText = formattedText.replace(/\n{3,}/g, '\n\n');
 
+        // Solo correcciones esenciales para el español que no rompan la estructura
         const spanishFixes = [
           [/\bair\b/g, 'a ir'], [/\bala\b(?=\s)/g, 'a la'], [/\bdela\b/g, 'de la'], 
-          [/\benla\b/g, 'en la'], [/\benel\b/g, 'en el'], [/\bmeha\b/gi, 'me ha'],
-          [/\bvolveria\b/g, 'volvería'], [/\bseria\b/g, 'sería'], [/\bpodria\b/g, 'podría']
+          [/\benla\b/g, 'en la'], [/\benel\b/g, 'en el'], [/\bmeha\b/gi, 'me ha']
         ];
         for (const [p, r] of spanishFixes) formattedText = formattedText.replace(p, r);
 
@@ -370,37 +368,60 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function cleanAndFormatWords(words) {
   if (!words || !words.length) return '';
   const cleanWords = [];
+  
   for (let w = 0; w < words.length; w++) {
     const word = words[w];
     const conf = word.confidence || 0;
     let text = (word.text || '').trim();
+    
+    // Filtros básicos de ruido OCR
     if (!text || /^[|_~=\-\\\/\[\]{}<>]+$/.test(text)) continue;
     if (conf < 60 && /^[.,;:!?'"'`´""''«»]+$/.test(text)) continue;
-    text = text.replace(/^[''`´"""\u201c\u201d]+/, '').replace(/[''`´"""\u201c\u201d]+$/, '');
-    if (!text) continue;
-
+    
+    // Manejo de emojis
     if (conf < 50) {
       const emoji = detectEmoji(text, words[w+1]);
       if (emoji) { cleanWords.push(emoji.text); if (emoji.consumed) w++; continue; }
     }
 
+    // Fusión de palabras cortadas por OCR
     if (w + 1 < words.length) {
       const fused = tryFuseWords(word, words[w+1]);
-      if (fused) { cleanWords.push(fused); w++; continue; }
+      if (fused) { 
+        cleanWords.push(fused); 
+        w++; 
+        continue; 
+      }
     }
 
+    // Validación de palabra
     const isCapitalized = text.length > 0 && text[0] === text[0].toUpperCase();
     const hasAccent = /[áéíóúÁÉÍÓÚ]/.test(text);
     const trustThreshold = (hasAccent || isCapitalized) ? 70 : 80;
 
-    if (conf >= trustThreshold || isSpanishWord(text)) cleanWords.push(text);
-    else {
-      const corrected = autoCorrectOCRWord(text) || trySplitMergedWord(text);
-      if (corrected) cleanWords.push(corrected);
-      else if (text.length >= 4 && /[aeiouáéíóú]/i.test(text)) cleanWords.push(text);
+    let finalWord = text;
+    if (conf < trustThreshold && !isSpanishWord(text)) {
+      finalWord = autoCorrectOCRWord(text) || trySplitMergedWord(text) || text;
+    }
+    
+    cleanWords.push(finalWord);
+
+    // MANTENER FORMA: Detectar huecos horizontales (espacios múltiples o columnas)
+    if (w + 1 < words.length) {
+      const nextWord = words[w+1];
+      const gap = nextWord.bbox.x0 - word.bbox.x1;
+      const charWidth = (word.bbox.x1 - word.bbox.x0) / (text.length || 1);
+      
+      if (gap > charWidth * 3) {
+        // Hueco grande detectado: insertar espacios proporcionales
+        const numSpaces = Math.min(10, Math.floor(gap / charWidth));
+        cleanWords.push(' '.repeat(numSpaces));
+      } else if (gap > charWidth * 0.5) {
+        cleanWords.push(' ');
+      }
     }
   }
-  return cleanWords.join(' ');
+  return cleanWords.join('').replace(/ +$/, '');
 }
 
 function detectEmoji(text, nextWord) {
